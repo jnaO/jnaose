@@ -1,3 +1,113 @@
 {
-  "extends": "next/core-web-vitals"
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true,
+    "es6": true,
+    "jest": true,
+    "jquery": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb",
+    "next/core-web-vitals",
+    "plugin:import/errors",
+    "plugin:import/typescript",
+    "plugin:import/warnings",
+    "plugin:react/recommended",
+    "prettier"
+  ],
+  "globals": {
+    "JSX": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "import",
+    "react",
+    "unused-imports",
+    "prettier"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", ["parent", "sibling"]],
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "react/react-in-jsx-scope": "off",
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-shadow": ["error"],
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-use-before-define": ["error"], // Temp
+    "consistent-return": "off", // Need to find solution
+    "global-require": "off",
+    "import/default": 2,
+    "import/export": 2,
+    "import/extensions": [ "error", "ignorePackages", { "js": "never", "jsx": "never", "ts": "never", "tsx": "never" } ],
+    "import/namespace": 2,
+    "import/no-unresolved": "off",
+    "jsx-a11y/anchor-is-valid": "off", // Needed for compliance with next <Link />
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/interactive-supports-focus": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-autofocus": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "jsx-a11y/no-redundant-roles": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/role-has-required-aria-props": "off",
+    "no-console": ["error", { "allow": ["error"] }],
+    "no-param-reassign": "off",
+    "no-restricted-syntax": "off", // Need to find solution
+    "no-shadow": "off",
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "prettier/prettier": ["error", {
+      "arrowParens": "avoid",
+      "semi": false,
+      "trailingComma": "all",
+      "singleQuote": true,
+      "printWidth": 80
+    }],
+    "react/button-has-type": ["error", { "reset": true }],
+    "react/destructuring-assignment": "off",
+    "react/forbid-prop-types": "off",
+    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+    "react/jsx-props-no-spreading": "off",
+    "react/no-array-index-key": "off",
+    "react/no-unused-prop-types": "off",
+    "react/require-default-props": "off",
+    "unused-imports/no-unused-imports-ts": "error",
+    "import/prefer-default-export": [
+      "off",
+      { "target": "any" } // default is "single"
+  ]
+  },
+  "settings": {
+    "react": {
+      "version": "16.12.0"
+    },
+    "import/extensions": [".js",".jsx",".ts",".tsx"]
+  }
 }
