@@ -21,7 +21,7 @@ export default function Home() {
       <Logo className={styles.logo} />
       <section className={styles.segment}>
         <p className={styles.paragraph}>
-          I&apos;m&apos; a web developer ( ◘-◘ ).
+          I&apos;m a web developer ( ◘-◘ ).
           <br />
           For contact you can{' '}
           <a
