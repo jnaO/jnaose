@@ -64,7 +64,6 @@
   align-items: flex-end;
   mix-blend-mode: difference;
   color: var(--text-color);
-  // aspect-ratio: 1 / 1;
   height: 3rem;
   padding-right: 1rem;
   background-color: rgba(255, 185, 21, 0);
@@ -101,22 +100,13 @@
 }
 
 .listLink {
-  display: flex;
-  align-items: flex-end;
-  mix-blend-mode: difference;
+  @extend .link;
   fill: var(--text-color);
   aspect-ratio: 1 / 1;
   width: 5rem;
-  background-color: rgba(255, 185, 21, 0);
-  outline: solid 1px rgba(255,255,255,0);
-  transition-property: fill, outline-color, background-color;
-  transition-duration: .4s, .5s, 1.3s;
-  transition-timing-function: ease-in-out;
+  height: auto;
   &:focus,
   &:hover {
     fill: var(--highlight-color);
-    outline-color: rgba(255,255,255,1);
-    background-color: rgba(255,255,255,.2);
-    transition-duration: 0s, .1s, .1s;
   }
 }
