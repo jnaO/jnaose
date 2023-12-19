@@ -35,7 +35,7 @@
   position: -webkit-sticky;
   position: sticky;
   top: 1rem;
-  left: 1rem;
+  left: env(safe-area-inset-left, 1rem);
   max-width: 200px;
   height: auto;
   mix-blend-mode: difference;
