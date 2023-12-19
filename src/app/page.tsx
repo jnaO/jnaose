@@ -1,6 +1,3 @@
-import Image from 'next/image'
-
-import background from '@/assets/images/bg.jpg'
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
 import Logo from '@/components/Logo/Logo'
@@ -11,13 +8,6 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.padder} />
-      <Image
-        src={background}
-        alt="Marseille"
-        width={2000}
-        height={1126}
-        className={styles.bgImage}
-      />
       <Logo className={styles.logo} />
       <section className={styles.segment}>
         <p className={styles.paragraph}>

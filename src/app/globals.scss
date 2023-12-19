@@ -30,6 +30,9 @@ body {
   font-family: var(--font-radjani);
   color: var(--text-color);
 }
+body {
+  position: relative;
+}
 
 @media (prefers-color-scheme: dark) {
   html {

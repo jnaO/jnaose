@@ -6,9 +6,11 @@ import type { Metadata, Viewport } from 'next'
 import { Rajdhani } from 'next/font/google'
 
 import './globals.scss'
+
 import bg from '@/assets/images/bg.jpg'
 
 import icons from './icons'
+import styles from './page.module.scss'
 
 const rajdhani = Rajdhani({
   weight: ['400'],
@@ -51,7 +53,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={classNames(rajdhani.className, rajdhani.variable)}>
+      <body
+        className={classNames(
+          styles.bgImage,
+          rajdhani.className,
+          rajdhani.variable,
+        )}
+        style={{ backgroundImage: `url(${bg.src})` }}
+      >
         {children}
         <Analytics />
       </body>
