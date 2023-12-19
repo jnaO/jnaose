@@ -25,6 +25,10 @@
   margin: 0;
 }
 
+html {
+  background-image: linear-gradient(to bottom, #FFFFFF 50%, #000000 50%);
+}
+
 html,
 body {
   font-family: var(--font-radjani);
