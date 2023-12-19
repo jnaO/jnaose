@@ -60,14 +60,27 @@
 }
 
 .link {
+  display: inline-flex;
+  align-items: flex-end;
+  mix-blend-mode: difference;
   color: var(--text-color);
-  transition: color 0.4s ease-in-out;
+  // aspect-ratio: 1 / 1;
+  height: 3rem;
+  padding-right: 1rem;
+  background-color: rgba(255, 185, 21, 0);
+  outline: solid 1px rgba(255,255,255,0);
+  transition-property: color, outline-color, background-color;
+  transition-duration: .9s, .5s, 1.3s;
+  transition-timing-function: ease-in-out;
   &:focus,
   &:hover {
-    transition: color 0.1s ease-in-out;
     color: var(--highlight-color);
+    outline-color: rgba(255,255,255,1);
+    background-color: rgba(255,255,255,.2);
+    transition-duration: .1s, .1s, .1s;
   }
 }
+
 
 .list {
   @extend .paragraph;
@@ -94,16 +107,16 @@
   fill: var(--text-color);
   aspect-ratio: 1 / 1;
   width: 5rem;
-  background-color: rgba(255,255,255,0);
+  background-color: rgba(255, 185, 21, 0);
   outline: solid 1px rgba(255,255,255,0);
   transition-property: fill, outline-color, background-color;
-  transition-duration: 1.4s, .5s, .3s;
+  transition-duration: .4s, .5s, 1.3s;
   transition-timing-function: ease-in-out;
   &:focus,
   &:hover {
     fill: var(--highlight-color);
     outline-color: rgba(255,255,255,1);
     background-color: rgba(255,255,255,.2);
-    transition-duration: 1.4s, 0s;
+    transition-duration: 0s, .1s, .1s;
   }
 }
