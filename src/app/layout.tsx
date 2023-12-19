@@ -9,6 +9,8 @@ import bg from '@/assets/images/bg.jpg'
 
 import icons from './icons'
 
+import { Analytics } from '@vercel/analytics/react'
+
 const rajdhani = Rajdhani({
   weight: ['400'],
   subsets: ['latin'],
@@ -52,6 +54,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={classNames(rajdhani.className, rajdhani.variable)}>
         {children}
+        <Analytics />
       </body>
     </html>
   )
