@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { Analytics } from '@vercel/analytics/react'
 import classNames from 'classnames'
 import type { Metadata, Viewport } from 'next'
 import { Rajdhani } from 'next/font/google'
@@ -8,8 +9,6 @@ import './globals.scss'
 import bg from '@/assets/images/bg.jpg'
 
 import icons from './icons'
-
-import { Analytics } from '@vercel/analytics/react'
 
 const rajdhani = Rajdhani({
   weight: ['400'],
