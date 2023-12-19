@@ -1,6 +1,9 @@
 .main {
   padding: 0;
   margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: scroll;
   scroll-snap-type: y mandatory;
 }
 
@@ -12,7 +15,7 @@
 }
 
 .segment {
-  scroll-snap-align: start;
+  scroll-snap-align: end;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
@@ -24,6 +27,7 @@
 }
 
 .padder {
+  scroll-snap-align: end;
   padding-top: calc(100vh - 180px);
 }
 .logo {
