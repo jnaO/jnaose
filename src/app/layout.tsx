@@ -1,10 +1,15 @@
 import React from 'react'
 
+import classNames from 'classnames'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Rajdhani } from 'next/font/google'
 import './globals.scss'
 
-const inter = Inter({ subsets: ['latin'] })
+const rajdhani = Rajdhani({
+  weight: ['400'],
+  subsets: ['latin'],
+  variable: '--font-rajdhani',
+})
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -18,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={classNames(rajdhani.className, rajdhani.variable)}>
+        {children}
+      </body>
     </html>
   )
 }

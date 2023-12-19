@@ -1,4 +1,6 @@
 :root {
+  --text-color: orange;
+  --highlight-color: #FFFFFF;
   --callout-rgb: 238, 240, 241;
   --callout-border-rgb: 172, 175, 176;
   --card-rgb: 180, 185, 188;
@@ -7,6 +9,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    // --text-color: #FFFFFF;
+    // --highlight-color: orange;
+
     --callout-rgb: 20, 20, 20;
     --callout-border-rgb: 108, 108, 108;
     --card-rgb: 100, 100, 100;
@@ -22,8 +27,8 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  font-family: var(--font-radjani);
+  color: var(--text-color);
 }
 
 @media (prefers-color-scheme: dark) {
