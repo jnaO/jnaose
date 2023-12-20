@@ -1,5 +1,6 @@
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
+import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
 
 import styles from './page.module.scss'
@@ -42,6 +43,10 @@ export default function Home() {
           </li>
         </ul>
       </section>
+      <div className={styles.padder} />
+      <h2 className={styles.title2}>
+        <JnaoLogo />
+      </h2>
     </main>
   )
 }

@@ -29,13 +29,19 @@
 
 .padder {
   scroll-snap-align: end;
-  padding-top: calc(100vh - 250px);
+  padding-top: calc(100vh - 260px);
 }
+
 .title {
   position: -webkit-sticky;
   position: sticky;
   top: 1rem;
   left: max(max(env(safe-area-inset-left)), 1rem);
+  mix-blend-mode: difference;
+  max-width: 200px;
+}
+.title2 {
+  margin: -7rem 0 7rem max(max(env(safe-area-inset-left)), 1rem);
   mix-blend-mode: difference;
   max-width: 200px;
 }
