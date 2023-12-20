@@ -31,14 +31,18 @@
   scroll-snap-align: end;
   padding-top: calc(100vh - 250px);
 }
-.logo {
+.title {
   position: -webkit-sticky;
   position: sticky;
   top: 1rem;
   left: max(max(env(safe-area-inset-left)), 1rem);
-  max-width: 200px;
-  height: auto;
   mix-blend-mode: difference;
+  max-width: 200px;
+}
+
+.logo {
+  max-width: 100%;
+  height: auto;
 }
 
 .bgImage {

@@ -2,11 +2,12 @@ import styles from './logo.module.scss'
 
 interface LogoProps {
   className?: string
+  alt?: string
 }
-function Logo({ className }: LogoProps) {
+function Logo({ alt = 'jnaO Logo', className }: LogoProps) {
   return (
     <svg
-      name="jnaO Logo"
+      name={alt}
       className={className}
       width="100%"
       height="100%"
@@ -21,6 +22,7 @@ function Logo({ className }: LogoProps) {
         strokeMiterlimit: 2,
       }}
     >
+      <title>{alt}</title>
       <g transform="matrix(2.24501,0,0,2.24501,-1037.29,-497.545)">
         <path
           className={styles.logo}

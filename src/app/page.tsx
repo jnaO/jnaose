@@ -8,7 +8,9 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.padder} />
-      <Logo className={styles.logo} />
+      <h1 className={styles.title}>
+        <Logo alt="Goksøyra" className={styles.logo} />
+      </h1>
       <section className={styles.segment}>
         <p className={styles.paragraph}>
           I&apos;m a web developer ( ◘-◘ ).
