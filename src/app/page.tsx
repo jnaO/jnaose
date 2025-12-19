@@ -4,17 +4,18 @@ import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
 
 import styles from './page.module.scss'
+import Eyes from '@/components/Eyes/Eyes'
 
 export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.padder} />
       <h1 className={styles.title}>
-        <Logo alt="Goksøyra" className={styles.logo} />
+        <Logo alt="jnaO AB" className={styles.logo} />
       </h1>
       <section className={styles.segment}>
         <p className={styles.paragraph}>
-          I&apos;m a web developer ( ◘-◘ ).
+          I&apos;m a web developer ( <Eyes /> ).
           <br />
           For contact you can{' '}
           <a
