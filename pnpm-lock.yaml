@@ -18,6 +18,9 @@ importers:
       animejs:
         specifier: ^4.2.2
         version: 4.2.2
+      bowser:
+        specifier: ^2.13.1
+        version: 2.13.1
       breakpoint-sass:
         specifier: ^3.0.0
         version: 3.0.0(sass@1.97.0)
@@ -427,6 +430,9 @@ packages:
   animejs@4.2.2:
     resolution: {integrity: sha512-Ys3RuvLdAeI14fsdKCQy7ytu4057QX6Bb7m4jwmfd6iKmUmLquTwk1ut0e4NtRQgCeq/s2Lv5+oMBjz6c7ZuIg==}
 
+  bowser@2.13.1:
+    resolution: {integrity: sha512-OHawaAbjwx6rqICCKgSG0SAnT05bzd7ppyKLVUITZpANBaaMFBAsaNkto3LoQ31tyFP5kNujE8Cdx85G9VzOkw==}
+
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
@@ -833,6 +839,8 @@ snapshots:
       react: 19.2.3
 
   animejs@4.2.2: {}
+
+  bowser@2.13.1: {}
 
   braces@3.0.3:
     dependencies:

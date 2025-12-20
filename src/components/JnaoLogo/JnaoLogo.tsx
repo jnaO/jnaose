@@ -2,7 +2,6 @@
 
 import {
   animate,
-  createDraggable,
   createScope,
   Scope,
   spring
@@ -66,7 +65,6 @@ function JnaoLogo({
       >
         <title>{alt}</title>
         <g id="outlines">
-          {' '}
           <path
             d="M649.611,31.212l38.042,23.097l-20.455,-52.065l-17.587,28.968Zm40.056,25.489l-41.429,-25.153l0.259,-0.428l18.894,-31.12l22.276,56.701Z"
             className={styles.purple}
