@@ -9,8 +9,6 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.padder} />
-      <JnaoLogo />
-      <div className={styles.padder} />
       <h1 className={styles.title}>
         <Logo alt="jnaO AB" className={styles.logo} />
       </h1>
@@ -54,6 +52,7 @@ export default function Home() {
         </ul>
       </section>
       <div className={styles.padder} />
+      <JnaoLogo />
     </main>
   )
 }
