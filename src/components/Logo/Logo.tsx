@@ -43,9 +43,9 @@ function Logo({
               duration: C.duration
             })
           }
-        ],
-        loop: true,
-        loopDelay: C.duration
+        ]
+        // loop: true,
+        // loopDelay: C.duration
       })
 
       // Make the logo draggable around its center
