@@ -1,14 +1,15 @@
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
+import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
-
 import styles from './page.module.scss'
-import Eyes from '@/components/Eyes/Eyes'
 
 export default function Home() {
   return (
     <main className={styles.main}>
+      <div className={styles.padder} />
+      <JnaoLogo />
       <div className={styles.padder} />
       <h1 className={styles.title}>
         <Logo alt="jnaO AB" className={styles.logo} />
@@ -28,26 +29,31 @@ export default function Home() {
         </p>
       </section>
       <section className={styles.segment}>
-        <p className={styles.paragraph}>I also make music.</p>
+        <p className={styles.paragraph}>
+          I also make music.
+        </p>
       </section>
       <section className={styles.segment}>
         <ul className={styles.list}>
           <li className={styles.listItem}>
-            <a className={styles.listLink} href="https://goksøyra.com">
+            <a
+              className={styles.listLink}
+              href="https://goksøyra.com"
+            >
               <GoksoyraLogo />
             </a>
           </li>
           <li className={styles.listItem}>
-            <a className={styles.listLink} href="https://djupmyrberget.se">
+            <a
+              className={styles.listLink}
+              href="https://djupmyrberget.se"
+            >
               <DMBLogo />
             </a>
           </li>
         </ul>
       </section>
       <div className={styles.padder} />
-      <h2 className={styles.title2}>
-        <JnaoLogo />
-      </h2>
     </main>
   )
 }

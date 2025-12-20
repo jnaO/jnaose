@@ -1,9 +1,8 @@
-import React from 'react'
-
 import { Analytics } from '@vercel/analytics/react'
 import classNames from 'classnames'
 import type { Metadata, Viewport } from 'next'
 import { Rajdhani } from 'next/font/google'
+import React from 'react'
 
 import './globals.scss'
 
@@ -15,13 +14,15 @@ import styles from './page.module.scss'
 const rajdhani = Rajdhani({
   weight: ['400'],
   subsets: ['latin'],
-  variable: '--font-rajdhani',
+  variable: '--font-rajdhani'
 })
 const name = 'jnaO'
 const description = 'Webdeveloper, music maker'
 export const metadata: Metadata = {
   title: name,
-  metadataBase: new URL(process.env.NEXT_PUBLIC_DOMAIN || ''),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_DOMAIN || ''
+  ),
   description,
   applicationName: name,
   keywords: ['developer'],
@@ -35,20 +36,20 @@ export const metadata: Metadata = {
     siteName: name,
     images: [
       {
-        url: bg.src,
-      },
-    ],
-  },
+        url: bg.src
+      }
+    ]
+  }
 }
 export const viewport: Viewport = {
   themeColor: '#FFFFFF',
   width: 'device-width',
   viewportFit: 'cover',
-  initialScale: 1,
+  initialScale: 1
 }
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {
@@ -58,7 +59,7 @@ export default function RootLayout({
         className={classNames(
           styles.bgImage,
           rajdhani.className,
-          rajdhani.variable,
+          rajdhani.variable
         )}
         style={{ backgroundImage: `url(${bg.src})` }}
       >
