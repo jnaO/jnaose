@@ -1,3 +1,4 @@
+import BakersMathsLogo from '@/components/BakersMathsLogo/BakersMathsLogo'
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
@@ -47,6 +48,21 @@ export default function Home() {
               href="https://djupmyrberget.se"
             >
               <DMBLogo />
+            </a>
+          </li>
+        </ul>
+      </section>
+      <section className={styles.segment}>
+        <p className={styles.paragraph}>And apps.</p>
+      </section>
+      <section className={styles.segment}>
+        <ul className={styles.list}>
+          <li className={styles.listItem}>
+            <a
+              className={styles.listLink}
+              href="https://bakersmaths.com"
+            >
+              <BakersMathsLogo />
             </a>
           </li>
         </ul>

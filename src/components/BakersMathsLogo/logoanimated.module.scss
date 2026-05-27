@@ -1,0 +1,31 @@
+/** @format */
+
+
+
+.logo {
+  max-width: 100%;
+}
+
+.drawing {
+  path {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+    stroke-width: 1px;
+  }
+}
+
+.darkGrain {
+
+  fill: oklch(var(--color-logo-dark));
+  stroke: oklch(var(--color-logo-dark));
+}
+
+.midGrain {
+  fill: oklch(var(--color-logo-mid));
+  stroke: oklch(var(--color-logo-mid));
+}
+
+.lightGrain {
+  fill: oklch(var(--color-logo-light));
+  stroke: oklch(var(--color-logo-light));
+}
