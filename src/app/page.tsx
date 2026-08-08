@@ -29,6 +29,15 @@ export default function Home() {
       </section>
       <section className={styles.segment}>
         <p className={styles.paragraph}>
+          I build sites for others, like{' '}
+          <a className={styles.link} href="https://martakei.com">
+            marta_kei_
+          </a>
+          .
+        </p>
+      </section>
+      <section className={styles.segment}>
+        <p className={styles.paragraph}>
           I also make music.
         </p>
       </section>
