@@ -32,6 +32,16 @@
   padding-top: calc(100vh - 260px);
 }
 
+.footer {
+  scroll-snap-align: end;
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  padding: 0 max(env(safe-area-inset-right), 1rem)
+    max(env(safe-area-inset-bottom), 1rem)
+    max(env(safe-area-inset-left), 1rem);
+}
+
 .title {
   position: -webkit-sticky;
   position: sticky;
@@ -44,12 +54,6 @@
 .logo {
   max-width: 100%;
   height: auto;
-}
-
-.bgImage {
-  background-position: center left;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 
@@ -109,4 +113,20 @@
   &:hover {
     fill: var(--highlight-color);
   }
+}
+
+.navItem {
+  @extend .link;
+  height: 2.75rem;
+  align-items: center;
+  padding: 0 0.5rem;
+  text-decoration: none;
+  &:focus,
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.navCurrent {
+  color: var(--highlight-color);
 }

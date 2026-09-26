@@ -8,6 +8,13 @@ import './globals.scss'
 
 import bg from '@/assets/images/bg.jpg'
 
+import Backdrop from '@/components/Backdrop/Backdrop'
+import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
+import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
+import Logo from '@/components/Logo/Logo'
+import SiteMenu from '@/components/SiteMenu/SiteMenu'
+import { SCROLLER_ID } from '@/constants'
+
 import icons from './icons'
 import styles from './page.module.scss'
 
@@ -57,13 +64,23 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={classNames(
-          styles.bgImage,
           rajdhani.className,
           rajdhani.variable
         )}
-        style={{ backgroundImage: `url(${bg.src})` }}
       >
-        {children}
+        <Backdrop />
+        <main id={SCROLLER_ID} className={styles.main}>
+          <div className={styles.padder} />
+          <h1 className={styles.title}>
+            <Logo alt="jnaO AB" className={styles.logo} />
+          </h1>
+          {children}
+          <footer className={styles.footer}>
+            <JnaoLogo />
+          </footer>
+        </main>
+        <SiteMenu />
+        <HistoryScenes />
         <Analytics />
       </body>
     </html>
