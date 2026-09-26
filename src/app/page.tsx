@@ -1,18 +1,22 @@
-import BakersMathsLogo from '@/components/BakersMathsLogo/BakersMathsLogo'
+import bg from '@/assets/images/bg.jpg'
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
-import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
-import Logo from '@/components/Logo/Logo'
+import WorkLink from '@/components/WorkLink/WorkLink'
+import { SITE_DESCRIPTION, SITE_NAME } from '@/constants'
 import styles from './page.module.scss'
+import { pageMetadata } from './pageMetadata'
+
+export const metadata = pageMetadata({
+  path: '/',
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  image: bg
+})
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <div className={styles.padder} />
-      <h1 className={styles.title}>
-        <Logo alt="jnaO AB" className={styles.logo} />
-      </h1>
+    <>
       <section className={styles.segment}>
         <p className={styles.paragraph}>
           I&apos;m a web developer ( <Eyes /> ).
@@ -29,11 +33,8 @@ export default function Home() {
       </section>
       <section className={styles.segment}>
         <p className={styles.paragraph}>
-          I build sites for others, like{' '}
-          <a className={styles.link} href="https://martakei.com">
-            marta_kei_
-          </a>
-          .
+          I build sites and apps, see the{' '}
+          <WorkLink className={styles.link}>work</WorkLink>.
         </p>
       </section>
       <section className={styles.segment}>
@@ -61,23 +62,6 @@ export default function Home() {
           </li>
         </ul>
       </section>
-      <section className={styles.segment}>
-        <p className={styles.paragraph}>And apps.</p>
-      </section>
-      <section className={styles.segment}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            <a
-              className={styles.listLink}
-              href="https://bakersmaths.com"
-            >
-              <BakersMathsLogo />
-            </a>
-          </li>
-        </ul>
-      </section>
-      <div className={styles.padder} />
-      <JnaoLogo />
-    </main>
+    </>
   )
 }
