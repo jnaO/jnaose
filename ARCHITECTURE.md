@@ -12,7 +12,10 @@ src/
     page.module.scss    scroller, .segment, .padder, .title, .footer, .link/.listLink/.navItem
     globals.scss        colour tokens, reset
     icons.ts            favicon metadata → public/favicons/
-  constants.ts          SCROLLER_ID — id of the layout's <main>
+    pageMetadata.ts     THE per-page metadata builder (title, description, canonical, full openGraph); every page's `metadata` goes through it
+    sitemap.ts          lists every route; add new routes to PATHS
+    robots.ts           allow all, points at the sitemap
+  constants.ts          SCROLLER_ID (id of the layout's <main>), SITE_URL / SITE_NAME / SITE_DESCRIPTION
   data/projects.ts      THE project list for /work (name, href, kind, icon, about)
   lib/
     backdropRequest.ts  store letting a click switch the Backdrop before the route changes
