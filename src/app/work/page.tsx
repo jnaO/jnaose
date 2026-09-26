@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import Image from 'next/image'
 
 import forest from '@/assets/images/forest.jpg'
+import ExternalIcon from '@/components/ExternalIcon/ExternalIcon'
 import ProjectNav from '@/components/ProjectNav/ProjectNav'
 import ScrollIn from '@/components/ScrollIn/ScrollIn'
 import { SITE_NAME } from '@/constants'
@@ -56,7 +57,8 @@ export default function Work() {
               {project.about}
             </p>
             <a className={styles.link} href={project.href}>
-              {project.host} ↗
+              {project.host}
+              <ExternalIcon />
             </a>
           </div>
         </section>
