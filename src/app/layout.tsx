@@ -6,14 +6,17 @@ import React from 'react'
 
 import './globals.scss'
 
-import bg from '@/assets/images/bg.jpg'
-
 import Backdrop from '@/components/Backdrop/Backdrop'
 import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
 import SiteMenu from '@/components/SiteMenu/SiteMenu'
-import { SCROLLER_ID } from '@/constants'
+import {
+  SCROLLER_ID,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL
+} from '@/constants'
 
 import icons from './icons'
 import styles from './page.module.scss'
@@ -23,30 +26,14 @@ const rajdhani = Rajdhani({
   subsets: ['latin'],
   variable: '--font-rajdhani'
 })
-const name = 'jnaO'
-const description = 'Webdeveloper, music maker'
 export const metadata: Metadata = {
-  title: name,
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_DOMAIN || ''
-  ),
-  description,
-  applicationName: name,
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: ['developer'],
-  authors: [{ name: 'jnaO', url: 'https://jnao.se' }],
-  icons,
-  openGraph: {
-    type: 'website',
-    url: 'https://jnao.se',
-    title: name,
-    description,
-    siteName: name,
-    images: [
-      {
-        url: bg.src
-      }
-    ]
-  }
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  icons
 }
 export const viewport: Viewport = {
   themeColor: '#FFFFFF',

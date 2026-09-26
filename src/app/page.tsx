@@ -1,8 +1,18 @@
+import bg from '@/assets/images/bg.jpg'
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
 import WorkLink from '@/components/WorkLink/WorkLink'
+import { SITE_DESCRIPTION, SITE_NAME } from '@/constants'
 import styles from './page.module.scss'
+import { pageMetadata } from './pageMetadata'
+
+export const metadata = pageMetadata({
+  path: '/',
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  image: bg
+})
 
 export default function Home() {
   return (

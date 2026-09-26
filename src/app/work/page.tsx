@@ -1,18 +1,22 @@
 import classNames from 'classnames'
-import type { Metadata } from 'next'
 import Image from 'next/image'
 
+import forest from '@/assets/images/forest.jpg'
 import ProjectNav from '@/components/ProjectNav/ProjectNav'
 import ScrollIn from '@/components/ScrollIn/ScrollIn'
+import { SITE_NAME } from '@/constants'
 import { projects } from '@/data/projects'
 
 import styles from '../page.module.scss'
+import { pageMetadata } from '../pageMetadata'
 import workStyles from './work.module.scss'
 
-export const metadata: Metadata = {
-  title: 'work · jnaO',
-  description: 'Sites and apps built by jnaO'
-}
+export const metadata = pageMetadata({
+  path: '/work',
+  title: `work · ${SITE_NAME}`,
+  description: `Sites and apps built by ${SITE_NAME}`,
+  image: forest
+})
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
