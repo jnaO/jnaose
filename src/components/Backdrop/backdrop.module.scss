@@ -1,0 +1,20 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+.mono {
+  position: absolute;
+  inset: 0;
+  background-position: center left;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.colour {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
