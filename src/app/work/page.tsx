@@ -5,7 +5,7 @@ import forest from '@/assets/images/forest.jpg'
 import ProjectNav from '@/components/ProjectNav/ProjectNav'
 import ScrollIn from '@/components/ScrollIn/ScrollIn'
 import { SITE_NAME } from '@/constants'
-import { projects } from '@/data/projects'
+import { projectNumber, projects } from '@/data/projects'
 
 import styles from '../page.module.scss'
 import { pageMetadata } from '../pageMetadata'
@@ -17,8 +17,6 @@ export const metadata = pageMetadata({
   description: `Sites and apps built by ${SITE_NAME}`,
   image: forest
 })
-
-const pad = (n: number) => String(n).padStart(2, '0')
 
 export default function Work() {
   return (
@@ -39,7 +37,8 @@ export default function Work() {
           />
           <div className={workStyles.text}>
             <p className={workStyles.meta}>
-              work · {pad(i + 1)} / {pad(projects.length)} ·{' '}
+              work · {projectNumber(i + 1)} /{' '}
+              {projectNumber(projects.length)} ·{' '}
               {project.kind}
             </p>
             <h2 className={workStyles.heading}>

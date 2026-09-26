@@ -14,6 +14,10 @@ export interface Project {
   about: string
 }
 
+// Two-digit project number, e.g. 3 → "03".
+export const projectNumber = (n: number) =>
+  String(n).padStart(2, '0')
+
 export const projects: Project[] = [
   {
     slug: 'marta-kei',

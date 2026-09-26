@@ -6,7 +6,10 @@ import { useEffect, useState } from 'react'
 
 import pageStyles from '@/app/page.module.scss'
 import { SCROLLER_ID } from '@/constants'
-import type { Project } from '@/data/projects'
+import {
+  type Project,
+  projectNumber
+} from '@/data/projects'
 import { useRequestedColour } from '@/lib/backdropRequest'
 
 import styles from './projectNav.module.scss'
@@ -14,8 +17,6 @@ import styles from './projectNav.module.scss'
 interface ProjectNavProps {
   projects: Pick<Project, 'slug' | 'name'>[]
 }
-
-const pad = (n: number) => String(n).padStart(2, '0')
 
 function ProjectNav({ projects }: ProjectNavProps) {
   // The project filling most of the scroller, or none.
@@ -91,7 +92,7 @@ function ProjectNav({ projects }: ProjectNavProps) {
             }
           )}
         >
-          {pad(i + 1)}
+          {projectNumber(i + 1)}
           <span className={styles.name}>{name}</span>
         </a>
       ))}
