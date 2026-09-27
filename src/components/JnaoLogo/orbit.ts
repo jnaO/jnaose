@@ -20,7 +20,8 @@ export const ORBIT = {
   ramp: 4000,
   // Max float height along the axis at mid-cycle, in `.box` widths.
   float: 0.2,
-  // Max |translateZ| as a share of FINALE.perspective.
+  // Max |translateZ| as a share of `.box`'s perspective, which widens
+  // from FINALE.perspective while orbiting to keep this.
   zBudget: 0.5,
   // Extra translateZ (px) per DOM index while orbiting.
   layerGap: 0.01
@@ -48,11 +49,46 @@ function rotate(v: Vec, axis: Vec, theta: number): Vec {
   ) as Vec
 }
 
+const DEG = 180 / Math.PI
+
+// The rotation by `theta` about `axis` as the CSS angles (deg) of
+// `rotateX(a) rotateY(b) rotateZ(c)`, anime's fixed rotation order:
+// R = Rx(a)·Ry(b)·Rz(c).
+function eulerXYZ(axis: Vec, theta: number) {
+  const [x, y, z] = [0, 1, 2].map((j) => {
+    const unit: Vec = [0, 0, 0]
+    unit[j] = 1
+    return rotate(unit, axis, theta)
+  })
+  // Column vectors: R[i][j] = [x, y, z][j][i].
+  const sinB = Math.max(-1, Math.min(1, z[0]))
+  const locked = Math.abs(sinB) > 1 - 1e-9
+  return {
+    rotateX: locked
+      ? Math.atan2(y[2], y[1]) * DEG
+      : Math.atan2(-z[1], z[2]) * DEG,
+    rotateY: Math.asin(sinB) * DEG,
+    rotateZ: locked ? 0 : Math.atan2(-y[0], x[0]) * DEG
+  }
+}
+
 export interface OrbitPose {
   translateX: number
   translateY: number
   translateZ: number
+  rotateX: number
+  rotateY: number
+  rotateZ: number
 }
+
+const POSE_KEYS: (keyof OrbitPose)[] = [
+  'translateX',
+  'translateY',
+  'translateZ',
+  'rotateX',
+  'rotateY',
+  'rotateZ'
+]
 
 interface OrbitOptions {
   box: HTMLElement
@@ -87,7 +123,8 @@ export function createOrbit({
     return { centre, turns, height }
   })
 
-  // Upper bound of |z| over a whole cycle, in viewBox units.
+  // Upper bound of a shard centre's |z| over a whole cycle, in viewBox
+  // units.
   const zReach = Math.max(
     ...bodies.map(({ centre, height }) => {
       const hub = dot(axis, centre) * axis[2]
@@ -106,33 +143,46 @@ export function createOrbit({
   let lastTime = 0
   let poses: OrbitPose[] = []
 
+  // Each shard moves rigidly with its orbit: about its own centre it
+  // turns by the same rotation that carries its centre round the axis.
   const pose = (): OrbitPose[] => {
     const scale = width / VIEWBOX.width
-    const zScale = Math.min(
-      1,
-      (ORBIT.zBudget * FINALE.perspective) / (zReach * scale)
-    )
     const phase = s / cycle
     const lift = Math.sin(Math.PI * phase) ** 2
     return bodies.map(({ centre, turns, height }, i) => {
-      const q = rotate(centre, axis, 2 * Math.PI * turns * phase)
+      const theta = 2 * Math.PI * turns * phase
+      const q = rotate(centre, axis, theta)
       const at = (j: number) =>
-        q[j] + height * lift * axis[j] - centre[j]
+        (q[j] + height * lift * axis[j] - centre[j]) * scale
       return {
-        translateX: at(0) * scale,
-        translateY: at(1) * scale,
-        translateZ: at(2) * scale * zScale + i * ORBIT.layerGap
+        translateX: at(0),
+        translateY: at(1),
+        translateZ: at(2) + i * ORBIT.layerGap,
+        ...eulerXYZ(axis, theta)
       }
     })
   }
 
   const render = () => {
     poses = pose()
-    utils.set(shardEls, {
-      translateX: (_: unknown, i: number) => poses[i].translateX,
-      translateY: (_: unknown, i: number) => poses[i].translateY,
-      translateZ: (_: unknown, i: number) => poses[i].translateZ
+    const params: Record<
+      string,
+      (_: unknown, i: number) => number
+    > = {}
+    POSE_KEYS.forEach((key) => {
+      params[key] = (_, i) => poses[i][key]
     })
+    utils.set(shardEls, params)
+  }
+
+  // Wide enough that the deepest shard centre stays within zBudget.
+  const perspective = (on: boolean) => {
+    const reach = (zReach * width) / VIEWBOX.width
+    box.style.perspective = `${
+      on
+        ? Math.max(FINALE.perspective, reach / ORBIT.zBudget)
+        : FINALE.perspective
+    }px`
   }
 
   const timer = createTimer({
@@ -149,8 +199,9 @@ export function createOrbit({
 
   const setRunning = (on: boolean) => {
     box.toggleAttribute('data-orbit', on)
+    if (on) width = box.clientWidth
+    perspective(on)
     if (on) {
-      width = box.clientWidth
       rampTime = 0
       lastTime = timer.currentTime
       timer.resume()
@@ -161,7 +212,7 @@ export function createOrbit({
     get running() {
       return !timer.paused
     },
-    // Current per-shard translate values written by the orbit.
+    // Current per-shard transform values written by the orbit.
     get poses() {
       return poses
     },
@@ -180,6 +231,7 @@ export function createOrbit({
     // Re-reads the `.box` width and rewrites the current pose.
     measure() {
       width = box.clientWidth
+      perspective(true)
       render()
     },
     revert() {
