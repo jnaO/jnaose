@@ -27,19 +27,27 @@
   top: 50%;
 }
 
-// The finale timeline overwrites exactly left, bottom and width.
+// The finale timeline overwrites exactly left, bottom, width and
+// --shard-opacity. Opacity below 1 on `.box` would flatten the orbit's
+// preserve-3d, so it sits on each shard.
 .box {
+  --shard-opacity: .5;
   position: absolute;
   left: max(env(safe-area-inset-left), 1rem);
   bottom: max(env(safe-area-inset-bottom), 1rem);
   width: 5rem;
   aspect-ratio: 994 / 981;
-  opacity: .5;
+}
+
+// Set by orbit.ts while the idle orbit runs.
+.box[data-orbit] {
+  transform-style: preserve-3d;
 }
 
 .shard {
   position: absolute;
   display: block;
+  opacity: var(--shard-opacity);
 }
 
 .blue {

@@ -29,7 +29,7 @@ export const FINALE = {
   // translateZ range at the off-screen pose; must stay < perspective.
   depthMin: 0,
   depthMax: 600,
-  // `.box` opacity once re-formed fullscreen.
+  // Per-shard opacity once re-formed fullscreen.
   fullOpacity: 0.5,
   // --ui-opacity 1 → 0 and --finale-blur 0 → 1 run from `mid` for
   // inDuration.
@@ -171,7 +171,7 @@ export function createFinale({
       left: full.left,
       bottom: full.bottom,
       width: full.width,
-      opacity: FINALE.fullOpacity
+      '--shard-opacity': FINALE.fullOpacity
     },
     'mid'
   )

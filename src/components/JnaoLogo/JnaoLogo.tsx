@@ -14,6 +14,7 @@ import { useEffect, useRef } from 'react'
 import { SCROLLER_ID } from '@/constants'
 
 import { createFinale, FINALE } from './finale'
+import { createOrbit } from './orbit'
 import styles from './jnaoLogo.module.scss'
 import { type Shard, shards, VIEWBOX } from './shards'
 
@@ -96,6 +97,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
     let onRunway = false
     let initial = true
     let stageSize = ''
+    const orbit = createOrbit({ box, shardEls, shards })
 
     const build = () => {
       stageSize = `${stage.clientWidth}x${stage.clientHeight}`
@@ -107,15 +109,22 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
         onSettle
       })
     }
+    // Seeks to the fullscreen end silently and keeps the orbit going.
+    const settleOnRunway = () => {
+      tl.seek(tl.duration, true)
+      if (orbit.running) orbit.measure()
+      else orbit.start()
+    }
     // Returns everything to rest CSS and rebuilds; ends on the side the
     // scroller is on.
     const rebuild = () => {
       tl.revert()
       tl = build()
-      if (onRunway) tl.seek(tl.duration, true)
+      if (onRunway) settleOnRunway()
     }
     function onSettle(reversed: boolean) {
       if (reversed) rebuild()
+      else orbit.start()
       heartbeat.current?.resume()
     }
     let tl = build()
@@ -128,7 +137,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
           initial = false
           onRunway = next
           markFinale(next)
-          if (next) tl.seek(tl.duration, true)
+          if (next) settleOnRunway()
           return
         }
         if (next === onRunway) return
@@ -136,7 +145,10 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
         markFinale(next)
         heartbeat.current?.pause()
         if (next) tl.play()
-        else tl.reverse()
+        else {
+          orbit.stop()
+          tl.reverse()
+        }
       },
       { root: scroller, threshold: RUNWAY_THRESHOLD }
     )
@@ -156,6 +168,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
     return () => {
       observer.disconnect()
       window.removeEventListener('resize', onResize)
+      orbit.revert()
       tl.revert()
       markFinale(false)
     }
