@@ -47,10 +47,3 @@
     translate: 1.5rem 0;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .item,
-  .leaving .item {
-    animation: none;
-  }
-}

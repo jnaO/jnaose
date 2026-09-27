@@ -223,10 +223,7 @@ function Backdrop() {
     const h = window.innerHeight
     const dpr = window.devicePixelRatio || 1
     const art = w < h ? PORTRAIT : LANDSCAPE
-    const reduce = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches
-    const animate = shown.current !== null && !reduce
+    const animate = shown.current !== null
     const wasShown = shown.current
     shown.current = colour
 
