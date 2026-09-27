@@ -123,9 +123,17 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
       if (onRunway) settleOnRunway()
     }
     function onSettle(reversed: boolean) {
-      if (reversed) rebuild()
-      else orbit.start()
-      heartbeat.current?.resume()
+      if (reversed) {
+        rebuild()
+        pulse(true)
+      } else orbit.start()
+    }
+    // The heartbeat runs only while the logo is at rest in the footer.
+    const pulse = (on: boolean) => {
+      const beat = heartbeat.current
+      if (!beat) return
+      if (on) beat.resume()
+      else beat.pause().seek(0)
     }
     let tl = build()
 
@@ -137,13 +145,16 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
           initial = false
           onRunway = next
           markFinale(next)
-          if (next) settleOnRunway()
+          if (next) {
+            pulse(false)
+            settleOnRunway()
+          }
           return
         }
         if (next === onRunway) return
         onRunway = next
         markFinale(next)
-        heartbeat.current?.pause()
+        pulse(false)
         if (next) tl.play()
         else {
           orbit.stop()
@@ -161,7 +172,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
       )
         return
       rebuild()
-      heartbeat.current?.resume()
+      if (!onRunway) pulse(true)
     }
     window.addEventListener('resize', onResize)
 
