@@ -27,7 +27,7 @@ export const projects: Project[] = [
     kind: 'site',
     icon: martakei,
     about:
-      'A home for Marta’s art, workshops and creative rituals. I built it end to end: she runs it all from her own Sanity studio, sells artworks and workshop seats through Stripe checkout in two currencies, and the site speaks English, Swedish and Polish.'
+      'A home for Marta’s art, workshops and creative rituals. I built it end to end: she runs it all herself, sells artworks and workshop seats through Stripe checkout in two currencies, and the site speaks English, Swedish and Polish.'
   },
   {
     slug: 'hangboard-buzzer',
