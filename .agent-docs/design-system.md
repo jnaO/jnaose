@@ -14,16 +14,15 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 
 ## Scroll model
 - `layout.tsx` owns the scroller: `<main id={SCROLLER_ID} class=.main>` (100vh, `overflow-y: scroll`, `scroll-snap-type: y mandatory`) → `.padder` → sticky `h1.title` Logo → page `{children}` → `footer.footer` JnaoLogo. The document itself does not scroll.
-- Pages render segments only. Home: `<section className={styles.segment}>` (100vh, snap `end`, content bottom-left). Work: `.project` (100% of the scroller, snap `end`).
+- Pages render segments only. Home: `<section className={styles.segment}>` (100% of the scroller, snap `end`, content bottom-left). Work: `.project` (100% of the scroller, snap `end`).
 - `.footer` is a full-height snap segment so the last snap point equals max scroll.
 - `SiteMenu`/`ProjectNav` are `position: fixed` inside/after the scroller; they join the blend because nothing between them and the backdrop creates a stacking context.
 
 ## Scene model (page changes)
-- `startScene(href, swap)` (`src/hooks/useSceneLink.ts`) — THE page-change routine; `useSceneLink` (menu, `WorkLink`) and `HistoryScenes` (back/forward) both call it. Order: `requestColour` → record whether scrollTop was 0 → smooth-scroll to top (`scrollend`, 1s fallback) → `swap()` (`router.push`/`replace` with `scroll: false`).
+- `startScene(href, swap)` (`src/hooks/useSceneLink.ts`) — THE page-change routine; `useSceneLink` (menu, `WorkLink`) and `HistoryScenes` (back/forward) both call it. Order: `requestColour` (halftone starts, runs alongside the scroll) → smooth-scroll to top (`scrollend`, 1s fallback) → `swap()` (`router.push`/`replace` with `scroll: false`). The new page always starts at the top; nothing scrolls it down.
 - Only the segments under the shared logo change; the logo moves purely by scrolling.
-- `ScrollIn` on `/work` scrolls to the first project only when `sceneStartedAtTop()`; a direct load counts as at-top.
 - All links into the scene pass `scroll={false}`; Next's own scroll reset would fight the scroller.
-- `prefers-reduced-motion`: scene scrolls and the halftone are skipped.
+- `prefers-reduced-motion` is not consulted anywhere; all motion always runs.
 
 ## Backdrop halftone (`src/components/Backdrop/Backdrop.tsx`)
 - Colour = `requested ?? isColourPath(pathname)`; `requestColour` lets the click start the reveal before the route changes, reset to `null` on every pathname change.
