@@ -1,6 +1,6 @@
 import { createTimer, utils } from 'animejs'
 
-import { FINALE } from './finale'
+import { FINALE, POSE_KEYS, type Pose } from './finale'
 import { type Shard, VIEWBOX } from './shards'
 
 // Tuning constants for the idle orbit once the logo is fullscreen.
@@ -72,24 +72,6 @@ function eulerXYZ(axis: Vec, theta: number) {
   }
 }
 
-export interface OrbitPose {
-  translateX: number
-  translateY: number
-  translateZ: number
-  rotateX: number
-  rotateY: number
-  rotateZ: number
-}
-
-const POSE_KEYS: (keyof OrbitPose)[] = [
-  'translateX',
-  'translateY',
-  'translateZ',
-  'rotateX',
-  'rotateY',
-  'rotateZ'
-]
-
 interface OrbitOptions {
   box: HTMLElement
   shardEls: Element[]
@@ -141,11 +123,11 @@ export function createOrbit({
   let s = 0
   let rampTime = 0
   let lastTime = 0
-  let poses: OrbitPose[] = []
+  let poses: Pose[] = []
 
   // Each shard moves rigidly with its orbit: about its own centre it
   // turns by the same rotation that carries its centre round the axis.
-  const pose = (): OrbitPose[] => {
+  const pose = (): Pose[] => {
     const scale = width / VIEWBOX.width
     const phase = s / cycle
     const lift = Math.sin(Math.PI * phase) ** 2
@@ -197,21 +179,23 @@ export function createOrbit({
     }
   })
 
-  const setRunning = (on: boolean) => {
+  // Engaged: `.box[data-orbit]` (preserve-3d) and the widened
+  // perspective. Stays engaged while paused.
+  const engage = (on: boolean) => {
     box.toggleAttribute('data-orbit', on)
     if (on) width = box.clientWidth
     perspective(on)
-    if (on) {
-      rampTime = 0
-      lastTime = timer.currentTime
-      timer.resume()
-    } else timer.pause()
+  }
+
+  const run = () => {
+    engage(true)
+    render()
+    rampTime = 0
+    lastTime = timer.currentTime
+    timer.resume()
   }
 
   return {
-    get running() {
-      return !timer.paused
-    },
     // Current per-shard transform values written by the orbit.
     get poses() {
       return poses
@@ -219,23 +203,25 @@ export function createOrbit({
     // From the flat logo.
     start() {
       s = 0
-      setRunning(true)
+      run()
     },
-    // From the kept orbit time.
-    resume() {
-      setRunning(true)
+    // From the kept orbit time, speed ramping in again.
+    resume: run,
+    // Holds the current pose, still engaged.
+    pause() {
+      timer.pause()
     },
     stop() {
-      setRunning(false)
+      timer.pause()
+      engage(false)
     },
     // Re-reads the `.box` width and rewrites the current pose.
     measure() {
-      width = box.clientWidth
-      perspective(true)
+      engage(true)
       render()
     },
     revert() {
-      setRunning(false)
+      engage(false)
       timer.revert()
     }
   }

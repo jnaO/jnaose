@@ -5,7 +5,8 @@ import {
   createScope,
   type JSAnimation,
   type Scope,
-  spring
+  spring,
+  type Timeline
 } from 'animejs'
 import classNames from 'classnames'
 import type React from 'react'
@@ -97,8 +98,20 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
     let onRunway = false
     let initial = true
     let stageSize = ''
+    // rest: logo in the footer, heartbeat on. flying: `tl` playing
+    // either way. orbit: fullscreen, orbiting. leaving: `leave`
+    // playing either way between the orbit pose and off-screen.
+    let state: 'rest' | 'flying' | 'orbit' | 'leaving' = 'rest'
+    let leave: null | Timeline = null
     const orbit = createOrbit({ box, shardEls, shards })
 
+    // The heartbeat runs only while the logo is at rest in the footer.
+    const pulse = (on: boolean) => {
+      const beat = heartbeat.current
+      if (!beat) return
+      if (on) beat.resume()
+      else beat.pause().seek(0)
+    }
     const build = () => {
       stageSize = `${stage.clientWidth}x${stage.clientHeight}`
       return createFinale({
@@ -111,31 +124,45 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
     }
     // Seeks to the fullscreen end silently and keeps the orbit going.
     const settleOnRunway = () => {
-      tl.seek(tl.duration, true)
-      if (orbit.running) orbit.measure()
+      finale.tl.seek(finale.tl.duration, true)
+      if (state === 'orbit') orbit.measure()
+      else if (state === 'leaving') orbit.resume()
       else orbit.start()
+      state = 'orbit'
     }
     // Returns everything to rest CSS and rebuilds; ends on the side the
     // scroller is on.
     const rebuild = () => {
-      tl.revert()
-      tl = build()
+      leave?.cancel()
+      leave = null
+      finale.tl.revert()
+      finale = build()
       if (onRunway) settleOnRunway()
+      else {
+        orbit.stop()
+        state = 'rest'
+        pulse(true)
+      }
     }
     function onSettle(reversed: boolean) {
+      if (reversed) rebuild()
+      else {
+        orbit.start()
+        state = 'orbit'
+      }
+    }
+    const onLeaveSettle = (reversed: boolean) => {
+      leave = null
       if (reversed) {
-        rebuild()
-        pulse(true)
-      } else orbit.start()
+        orbit.resume()
+        state = 'orbit'
+      } else {
+        orbit.stop()
+        finale.reverseFromMid()
+        state = 'flying'
+      }
     }
-    // The heartbeat runs only while the logo is at rest in the footer.
-    const pulse = (on: boolean) => {
-      const beat = heartbeat.current
-      if (!beat) return
-      if (on) beat.resume()
-      else beat.pause().seek(0)
-    }
-    let tl = build()
+    let finale = build()
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -155,10 +182,18 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
         onRunway = next
         markFinale(next)
         pulse(false)
-        if (next) tl.play()
-        else {
-          orbit.stop()
-          tl.reverse()
+        if (leave) {
+          if (next) leave.reverse()
+          else leave.play()
+        } else if (state === 'orbit') {
+          orbit.pause()
+          leave = finale.leave(orbit.poses, onLeaveSettle)
+          leave.play()
+          state = 'leaving'
+        } else {
+          if (next) finale.tl.play()
+          else finale.tl.reverse()
+          state = 'flying'
         }
       },
       { root: scroller, threshold: RUNWAY_THRESHOLD }
@@ -172,15 +207,15 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
       )
         return
       rebuild()
-      if (!onRunway) pulse(true)
     }
     window.addEventListener('resize', onResize)
 
     return () => {
       observer.disconnect()
       window.removeEventListener('resize', onResize)
+      leave?.cancel()
       orbit.revert()
-      tl.revert()
+      finale.tl.revert()
       markFinale(false)
     }
   }, [])

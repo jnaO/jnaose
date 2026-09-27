@@ -1,8 +1,4 @@
-import {
-  createTimeline,
-  type Timeline,
-  utils
-} from 'animejs'
+import { createTimeline, utils } from 'animejs'
 
 import { type Shard, VIEWBOX } from './shards'
 
@@ -17,6 +13,9 @@ export const FINALE = {
   // In: shards fly from off-screen into the fullscreen logo.
   inDuration: 520,
   inEase: 'out(4)',
+  // Leave: shards fly from the orbit to the in-phase off-screen pose,
+  // for inDuration, before the out phase plays back.
+  leaveEase: 'in(4)',
   // Max per-shard start delay within each phase.
   stagger: 90,
   // Flight distance, as a multiple of the stage diagonal.
@@ -65,8 +64,9 @@ function offscreenPose(
   }
 }
 
-type Pose = ReturnType<typeof offscreenPose>
-const POSE_KEYS: (keyof Pose)[] = [
+// A shard's transform values; rotations in deg, translations in px.
+export type Pose = ReturnType<typeof offscreenPose>
+export const POSE_KEYS: (keyof Pose)[] = [
   'translateX',
   'translateY',
   'translateZ',
@@ -116,15 +116,15 @@ interface FinaleOptions {
   onSettle: (reversed: boolean) => void
 }
 
-// Paused timeline: rest logo → shards off-screen → fullscreen logo.
-// Must be built with `.box` at its resting CSS placement.
+// `tl`: paused timeline, rest logo → shards off-screen → fullscreen
+// logo. Must be built with `.box` at its resting CSS placement.
 export function createFinale({
   stage,
   box,
   shardEls,
   shards,
   onSettle
-}: FinaleOptions): Timeline {
+}: FinaleOptions) {
   const seeded = utils.createSeededRandom(FINALE.seed)
   const random: Random = (min, max) => seeded(min, max, 4)
 
@@ -187,7 +187,7 @@ export function createFinale({
     'mid'
   )
 
-  shardEls.forEach((el, i) => {
+  const inPoses = shardEls.map((el, i) => {
     const { bbox } = shards[i]
     const pose = offscreenPose(
       random,
@@ -203,7 +203,50 @@ export function createFinale({
       },
       midpoint + random(0, FINALE.stagger)
     )
+    return pose
   })
 
-  return tl
+  // Paused timeline: shards from the `from` poses to their in-phase
+  // off-screen pose, <html>'s variables back to rest. Starts from the
+  // end of `tl`. `onComplete` fires at both ends.
+  const leave = (
+    from: Pose[],
+    onComplete: (reversed: boolean) => void
+  ) => {
+    const flight: Record<
+      string,
+      (_: unknown, i: number) => [number, number]
+    > = {}
+    POSE_KEYS.forEach((key) => {
+      flight[key] = (_, i) => [from[i][key], inPoses[i][key]]
+    })
+    return createTimeline({
+      autoplay: false,
+      defaults: {
+        composition: 'none',
+        duration: FINALE.inDuration
+      },
+      onComplete: (self) => onComplete(self.reversed)
+    })
+      .add(shardEls, { ...flight, ease: FINALE.leaveEase }, 0)
+      .add(
+        document.documentElement,
+        {
+          '--ui-opacity': [0, 1],
+          '--finale-blur': [1, 0],
+          ease: FINALE.uiEase
+        },
+        0
+      )
+  }
+
+  return {
+    tl,
+    leave,
+    // Plays the out phase back to rest from `mid`, where every shard
+    // is off-screen and <html>'s variables are at rest.
+    reverseFromMid: () => tl.seek(midpoint).reverse()
+  }
 }
+
+export type Finale = ReturnType<typeof createFinale>

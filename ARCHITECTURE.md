@@ -31,7 +31,7 @@ src/
     WorkLink/           inline link to /work using the scene routine
     SvgPathWrapper/     THE <g> wrapper paired with useAnimatedLogo
     Logo/               sticky header logo (draggable)
-    JnaoLogo/           footer logo: one <svg> per shard (shards.ts); finale.ts = explode/re-form timeline + FINALE tuning constants; orbit.ts = idle orbit controller + ORBIT tuning constants
+    JnaoLogo/           footer logo: one <svg> per shard (shards.ts); finale.ts = explode/re-form timeline, orbit-to-reverse leave + FINALE tuning constants; orbit.ts = idle orbit controller + ORBIT tuning constants
     Eyes/               blinking inline glyph in copy
     GoksoyraLogo/       music link logo
     DMBLogo/            music link logo
