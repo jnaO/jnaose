@@ -31,7 +31,8 @@ export const FINALE = {
   depthMax: 600,
   // `.box` opacity once re-formed fullscreen.
   fullOpacity: 0.5,
-  // --ui-opacity 1 → 0 runs from `mid` for inDuration.
+  // --ui-opacity 1 → 0 and --finale-blur 0 → 1 run from `mid` for
+  // inDuration.
   uiEase: 'linear'
 }
 
@@ -179,6 +180,7 @@ export function createFinale({
     document.documentElement,
     {
       '--ui-opacity': [1, 0],
+      '--finale-blur': [0, 1],
       duration: FINALE.inDuration,
       ease: FINALE.uiEase
     },
