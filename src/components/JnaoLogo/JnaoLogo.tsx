@@ -42,6 +42,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
   const root = useRef<HTMLHeadingElement>(null)
   const scope = useRef<null | Scope>(null)
   const heartbeat = useRef<null | JSAnimation>(null)
+  const runway = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     scope.current = createScope({ root }).add(() => {
@@ -69,28 +70,43 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
   }, [])
 
   return (
-    <h2 ref={root} className={styles.title2}>
+    <>
       <div
-        role="img"
-        aria-label={alt}
-        className={classNames(styles.box, 'box')}
-        style={{ perspective: C.perspective }}
-      >
-        {shards.map(({ d, tone, bbox }) => (
-          <svg
-            key={d}
-            aria-hidden="true"
-            className={classNames(styles.shard, 'shard')}
-            style={shardPlacement(bbox)}
-            viewBox={bbox.join(' ')}
-            preserveAspectRatio="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d={d} className={styles[tone]} />
-          </svg>
-        ))}
-      </div>
-    </h2>
+        className={classNames(
+          styles.snap,
+          styles.footerSnap
+        )}
+      />
+      <div
+        ref={runway}
+        className={classNames(
+          styles.snap,
+          styles.runwaySnap
+        )}
+      />
+      <h2 ref={root} className={styles.stage}>
+        <div
+          role="img"
+          aria-label={alt}
+          className={classNames(styles.box, 'box')}
+          style={{ perspective: C.perspective }}
+        >
+          {shards.map(({ d, tone, bbox }) => (
+            <svg
+              key={d}
+              aria-hidden="true"
+              className={classNames(styles.shard, 'shard')}
+              style={shardPlacement(bbox)}
+              viewBox={bbox.join(' ')}
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d={d} className={styles[tone]} />
+            </svg>
+          ))}
+        </div>
+      </h2>
+    </>
   )
 }
 

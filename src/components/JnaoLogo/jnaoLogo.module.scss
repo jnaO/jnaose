@@ -1,11 +1,37 @@
-.title2 {
+// `.footer` (page.module.scss) is two scroller heights tall; 50% of it
+// is one scroller height.
+.stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 50%;
   margin: 0;
   mix-blend-mode: difference;
-  max-width: 200px;
+  pointer-events: none;
 }
 
+.snap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  scroll-snap-align: end;
+  pointer-events: none;
+}
+
+.footerSnap {
+  top: 0;
+}
+
+.runwaySnap {
+  top: 50%;
+}
+
+// The finale timeline overwrites exactly left, bottom and width.
 .box {
-  position: relative;
+  position: absolute;
+  left: max(env(safe-area-inset-left), 1rem);
+  bottom: max(env(safe-area-inset-bottom), 1rem);
   width: 5rem;
   aspect-ratio: 994 / 981;
   opacity: .5;

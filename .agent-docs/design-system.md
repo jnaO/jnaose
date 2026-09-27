@@ -10,12 +10,12 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 - Backdrop: `Backdrop` (fixed, `z-index: -1`) — `bg.jpg` as a CSS layer (`cover`, `center left`) plus a `<canvas>` holding the colour photo on `/work`. `html` has a white/black 50/50 gradient behind it.
 
 ## Blend model
-`mix-blend-mode: difference` on `.segment`, `.title`, `.link`, `Logo` path, `JnaoLogo` `.title2`. Orange reads differently over sky vs ground — this contrast shift IS the look. Any new foreground element joins it by applying `difference`; a solid background on an ancestor breaks the effect.
+`mix-blend-mode: difference` on `.segment`, `.title`, `.link`, `Logo` path, `JnaoLogo` `.stage`. Orange reads differently over sky vs ground — this contrast shift IS the look. Any new foreground element joins it by applying `difference`; a solid background on an ancestor breaks the effect.
 
 ## Scroll model
 - `layout.tsx` owns the scroller: `<main id={SCROLLER_ID} class=.main>` (100vh, `overflow-y: scroll`, `scroll-snap-type: y mandatory`) → `.padder` → sticky `h1.title` Logo → page `{children}` → `footer.footer` JnaoLogo. The document itself does not scroll.
 - Pages render segments only. Home: `<section className={styles.segment}>` (100% of the scroller, snap `end`, content bottom-left). Work: `.project` (100% of the scroller, snap `end`).
-- `.footer` is a full-height snap segment so the last snap point equals max scroll.
+- `.footer` is `position: relative; height: 200%` (two scroller heights) with **no** snap-align of its own — a 200% snap area would allow free scrolling inside it. `JnaoLogo` renders into it: two absolute `pointer-events: none` snap markers (`.footerSnap` at `top: 0`, `.runwaySnap` at `top: 50%`, each `height: 50%`, snap `end`) and the `<h2>` stage (`position: sticky; top: 0; height: 50%`, full width, `pointer-events: none`). The stage stays pinned between the footer snap and the runway snap (= max scroll), so the logo does not move while scrolling between them. `.box` sits in the stage at `left`/`bottom` = gutter.
 - `SiteMenu`/`ProjectNav` are `position: fixed` inside/after the scroller; they join the blend because nothing between them and the backdrop creates a stacking context.
 
 ## Scene model (page changes)
