@@ -4,10 +4,16 @@
   max-width: 200px;
 }
 
-.logo {
+.box {
+  position: relative;
   width: 5rem;
-  height: 5rem;
+  aspect-ratio: 994 / 981;
   opacity: .5;
+}
+
+.shard {
+  position: absolute;
+  display: block;
 }
 
 .blue {

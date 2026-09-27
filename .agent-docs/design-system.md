@@ -43,6 +43,7 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 
 ## SVG conventions
 - Always inline JSX components in `src/components/<Name>/<Name>.tsx` + `<name>.module.scss`; no `<img>`. Paths keep their exported `matrix(...)` transforms.
+- Exception, `JnaoLogo`: each of its 36 paths is its own `<svg>` (CSS 3D transforms do not apply to SVG children). Path data lives in `JnaoLogo/shards.ts` as `{ d, tone, bbox }`; `bbox` is the path's bounding box in the 994×981 viewBox plus ~1 unit padding. Each shard svg uses that bbox as `viewBox`, `preserveAspectRatio="none"`, and `left/top/width/height` = bbox as percentages of 994×981 inside `.box` (`aspect-ratio: 994 / 981`). Changing a path's `d` means re-measuring its bbox.
 - `SvgPathWrapper` — THE `<g>` wrapper for stroke-animated logos: carries `transform`, `fillRule=evenodd`, `stroke`, `strokeWidth=0`.
 - `useAnimatedLogo(ref, config)` (`src/hooks/useAnimatedLogo.ts`) — THE stroke-pulse animation. Animates every `<path>` under `ref`: `draw 0→1`, strokeWidth `0 → full → 0 → ...extraStrokeWidths → 0`, 100ms stagger per path, random loop delay (4–7s default). Mobile (Bowser) uses `strokeWidthMobile`; IE skipped. Returns `strokeColorAlternative` to pass into `SvgPathWrapper`. Used by `Logo`, `DMBLogo`, `GoksoyraLogo`.
 - One-off animations use `createScope({ root })` in a `useEffect` with `scope.revert()` cleanup, targeting a global (non-module) class string, e.g. `'.logo'`, `'.wrapper'`, `'.blink'`.
@@ -50,7 +51,7 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 | Component | Behaviour |
 |---|---|
 | `Logo` | header; `useAnimatedLogo` gold pulse + scale bounce-in + `createDraggable` springing back to origin |
-| `JnaoLogo` | footer `<h2>`, opacity .5; looping spring heartbeat scale; fixed colour classes (purple/green/blue/yellow + `*Plate`) |
+| `JnaoLogo` | footer `<h2>` → `.box` (`role=img`, opacity .5, `perspective` from `C`) of 36 layered shard svgs (`shards.ts`); looping spring heartbeat scales `.box`; fixed colour classes (purple/green/blue/yellow + `*Plate`) |
 | `Eyes` | inline in copy (1.6rem×1rem); `.blink` circles opacity keyframes, 5s loop delay |
 | `GoksoyraLogo`, `DMBLogo` | `useAnimatedLogo` defaults (orange stroke, width 8/9) |
 | `BakersMathsLogo` | one-shot `createTimeline`; see below. Not rendered anywhere |
