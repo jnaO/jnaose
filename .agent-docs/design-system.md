@@ -52,7 +52,7 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 | Component | Behaviour |
 |---|---|
 | `Logo` | header; `useAnimatedLogo` gold pulse + scale bounce-in + `createDraggable` springing back to origin |
-| `JnaoLogo` | footer sticky `<h2>` stage → `.box` (`role=img`, `perspective` from `FINALE`, widened while orbiting) of 36 layered shard svgs (`shards.ts`), each at `opacity: var(--shard-opacity)` (.5, set on `.box`); looping spring heartbeat scales `.box`; scroll-triggered explode/re-form finale and idle orbit (see Footer finale); fixed colour classes (purple/green/blue/yellow + `*Plate`) |
+| `JnaoLogo` | footer sticky `<h2>` stage (`overflow: clip`, so off-screen shards never add scrollable overflow) → `.box` (`role=img`, `perspective` from `FINALE`, widened while orbiting) of 36 layered shard svgs (`shards.ts`), each at `opacity: var(--shard-opacity)` (.5, set on `.box`); looping spring heartbeat scales `.box`; scroll-triggered explode/re-form finale and idle orbit (see Footer finale); fixed colour classes (purple/green/blue/yellow + `*Plate`) |
 | `Eyes` | inline in copy (1.6rem×1rem); `.blink` circles opacity keyframes, 5s loop delay |
 | `GoksoyraLogo`, `DMBLogo` | `useAnimatedLogo` defaults (orange stroke, width 8/9) |
 | `BakersMathsLogo` | one-shot `createTimeline`; see below. Not rendered anywhere |
