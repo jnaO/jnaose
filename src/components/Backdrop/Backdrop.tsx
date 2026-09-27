@@ -1,12 +1,14 @@
 'use client'
 
+import classNames from 'classnames'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import bg from '@/assets/images/bg.jpg'
 import fireweed from '@/assets/images/fireweed.jpg'
 import forest from '@/assets/images/forest.jpg'
 
+import { ROTATE_KEEP } from '@/constants'
 import {
   requestColour,
   useRequestedColour
@@ -203,23 +205,45 @@ function drawFrame(
   ctx.globalCompositeOperation = 'source-over'
 }
 
+// Viewport width, updated once per frame while the window resizes.
+// Device rotation changes it; Safari's toolbar collapsing (height
+// only) does not.
+function useViewportWidth() {
+  const [width, setWidth] = useState<number | null>(null)
+  useEffect(() => {
+    let frame = 0
+    const read = () => setWidth(window.innerWidth)
+    const onResize = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(read)
+    }
+    read()
+    window.addEventListener('resize', onResize)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
+  return width
+}
+
 function Backdrop() {
   const pathname = usePathname()
   const requested = useRequestedColour()
   const colour = requested ?? isColourPath(pathname)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const shown = useRef<boolean | null>(null)
+  const w = useViewportWidth()
 
   useEffect(() => requestColour(null), [pathname])
 
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
+    if (!canvas || !ctx || w === null) return
 
     let frame = 0
     let cancelled = false
-    const w = window.innerWidth
     const h = window.innerHeight
     const dpr = window.devicePixelRatio || 1
     const art = w < h ? PORTRAIT : LANDSCAPE
@@ -265,10 +289,13 @@ function Backdrop() {
       cancelled = true
       cancelAnimationFrame(frame)
     }
-  }, [colour])
+  }, [colour, w])
 
   return (
-    <div className={styles.backdrop} aria-hidden="true">
+    <div
+      className={classNames(styles.backdrop, ROTATE_KEEP)}
+      aria-hidden="true"
+    >
       <div
         className={styles.mono}
         style={{ backgroundImage: `url(${bg.src})` }}

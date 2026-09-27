@@ -15,8 +15,8 @@ import { useEffect, useRef } from 'react'
 import { SCROLLER_ID } from '@/constants'
 
 import { createFinale, FINALE } from './finale'
-import { createOrbit } from './orbit'
 import styles from './jnaoLogo.module.scss'
+import { createOrbit } from './orbit'
 import { type Shard, shards, VIEWBOX } from './shards'
 
 const C = {
@@ -101,7 +101,8 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
     // rest: logo in the footer, heartbeat on. flying: `tl` playing
     // either way. orbit: fullscreen, orbiting. leaving: `leave`
     // playing either way between the orbit pose and off-screen.
-    let state: 'rest' | 'flying' | 'orbit' | 'leaving' = 'rest'
+    let state: 'rest' | 'flying' | 'orbit' | 'leaving' =
+      'rest'
     let leave: null | Timeline = null
     const orbit = createOrbit({ box, shardEls, shards })
 

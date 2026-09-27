@@ -10,6 +10,7 @@ import Backdrop from '@/components/Backdrop/Backdrop'
 import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
+import RotateNotice from '@/components/RotateNotice/RotateNotice'
 import SiteMenu from '@/components/SiteMenu/SiteMenu'
 import {
   SCROLLER_ID,
@@ -71,6 +72,7 @@ export default function RootLayout({
         </main>
         <SiteMenu />
         <HistoryScenes />
+        <RotateNotice />
         <Analytics />
       </body>
     </html>

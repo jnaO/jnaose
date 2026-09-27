@@ -223,7 +223,10 @@ export function createFinale({
       (_: unknown, i: number) => [number, number]
     > = {}
     POSE_KEYS.forEach((key) => {
-      flight[key] = (_, i) => [from[i][key], inPoses[i][key]]
+      flight[key] = (_, i) => [
+        from[i][key],
+        inPoses[i][key]
+      ]
     })
     return createTimeline({
       autoplay: false,
@@ -233,7 +236,11 @@ export function createFinale({
       },
       onComplete: (self) => onComplete(self.reversed)
     })
-      .add(shardEls, { ...flight, ease: FINALE.leaveEase }, 0)
+      .add(
+        shardEls,
+        { ...flight, ease: FINALE.leaveEase },
+        0
+      )
       .add(
         document.documentElement,
         {
