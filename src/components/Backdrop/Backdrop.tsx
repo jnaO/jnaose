@@ -274,6 +274,7 @@ function Backdrop() {
         style={{ backgroundImage: `url(${bg.src})` }}
       />
       <canvas ref={canvasRef} className={styles.colour} />
+      <div className={styles.blur} />
     </div>
   )
 }

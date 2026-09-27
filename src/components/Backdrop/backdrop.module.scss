@@ -1,13 +1,10 @@
 // Blur strength at --finale-blur: 1.
 $blur-max: 24px;
 
-// JnaoLogo's finale tweens --finale-blur 0 → 1 on <html>. The overscan
-// keeps the blurred edges outside the viewport.
 .backdrop {
   position: fixed;
-  inset: calc(var(--finale-blur, 0) * -3 * #{$blur-max});
+  inset: 0;
   z-index: -1;
-  filter: blur(calc(var(--finale-blur, 0) * #{$blur-max}));
 }
 
 .mono {
@@ -23,4 +20,14 @@ $blur-max: 24px;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+// JnaoLogo's finale tweens --finale-blur 0 → 1 on <html>. A backdrop
+// filter samples past its edges from its own edge pixels, so the
+// blurred edges stay opaque at every blur value and viewport size.
+.blur {
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: blur(calc(var(--finale-blur, 0) * #{$blur-max}));
+  backdrop-filter: blur(calc(var(--finale-blur, 0) * #{$blur-max}));
 }
