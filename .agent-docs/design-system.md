@@ -51,10 +51,19 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 | Component | Behaviour |
 |---|---|
 | `Logo` | header; `useAnimatedLogo` gold pulse + scale bounce-in + `createDraggable` springing back to origin |
-| `JnaoLogo` | footer `<h2>` → `.box` (`role=img`, opacity .5, `perspective` from `C`) of 36 layered shard svgs (`shards.ts`); looping spring heartbeat scales `.box`; fixed colour classes (purple/green/blue/yellow + `*Plate`) |
+| `JnaoLogo` | footer sticky `<h2>` stage → `.box` (`role=img`, opacity .5, `perspective` from `FINALE`) of 36 layered shard svgs (`shards.ts`); looping spring heartbeat scales `.box`; scroll-triggered explode/re-form finale (see Footer finale); fixed colour classes (purple/green/blue/yellow + `*Plate`) |
 | `Eyes` | inline in copy (1.6rem×1rem); `.blink` circles opacity keyframes, 5s loop delay |
 | `GoksoyraLogo`, `DMBLogo` | `useAnimatedLogo` defaults (orange stroke, width 8/9) |
 | `BakersMathsLogo` | one-shot `createTimeline`; see below. Not rendered anywhere |
+
+### Footer finale (`JnaoLogo`)
+- Tuning constants: `FINALE` at the top of `src/components/JnaoLogo/finale.ts` (seed, perspective, durations, eases, stagger, distance, jitter, rotation, depth, fullscreen opacity). Heartbeat constants: `C` in `JnaoLogo.tsx`. Keep `depthMax` < `perspective`, or shards pass behind the camera.
+- Trigger: an `IntersectionObserver` (root = scroller, `threshold: RUNWAY_THRESHOLD` 0.5) on the `.runwaySnap` marker. Crossing in → `tl.play()`, crossing out → `tl.reverse()`; both turn around from the current playhead. The first callback only records the side (seeking to the end if the page is already on the runway). Triggered, not scroll-scrubbed.
+- `createFinale()` builds one paused timeline: **out** (each `.shard` tweens `translateX/Y/Z`, `rotateX/Y/Z` from identity to a seeded off-screen pose: direction = viewBox centre → bbox centre + jitter, distance = stage diagonal + shard radius × 1.1–1.5) → label `mid`: `tl.set(box, { left, bottom, width, opacity })` to the contain-fit rect (stage minus the resting gutter, centred) → **in** (a second seeded pose → identity). Total ≈ 1.1s.
+- Randomness: `utils.createSeededRandom(FINALE.seed)`, created fresh per build and consumed in fixed shard order, so every run and every rebuild produces the same poses.
+- `tl.onComplete` fires at both ends (`self.reversed` tells which). At rest after a reverse the timeline is `revert()`ed and rebuilt, which clears every inline transform/geometry it wrote. Resize with a changed stage size also reverts and rebuilds, then seeks to the end if on the runway. The heartbeat is paused when either direction starts and resumed on settle.
+- The timeline lives outside the `createScope` (it is rebuilt after each round trip); the effect cleanup reverts it. Do not use `tl.call()` for state: it does not fire in reverse.
+- `.box` must be at its resting CSS placement (`left`/`bottom`/`width` only) when `createFinale` runs; the `set` reads those as its from-values.
 
 ### BakersMathsLogo timeline
 - Structure driven by data attributes: `g[data-stalk]` → paths with `data-type="stem"|"grain"|"whisk"`, grains ordered by `data-order`.
