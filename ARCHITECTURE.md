@@ -7,7 +7,7 @@ src/
   app/
     layout.tsx          THE shared scene: Backdrop, <main> scroller, top padder + sticky Logo, {children}, footer JnaoLogo, SiteMenu, HistoryScenes
     page.tsx            home segments only
-    work/page.tsx       one snap segment per `projects` entry + ProjectNav + ScrollIn
+    work/page.tsx       one snap segment per `projects` entry + ProjectNav
     work/work.module.scss  project segment, icon, text, scroll-driven enter fade
     page.module.scss    scroller, .segment, .padder, .title, .footer, .link/.listLink/.navItem
     globals.scss        colour tokens, reset
@@ -19,7 +19,6 @@ src/
   data/projects.ts      THE project list for /work (name, href, kind, icon, about)
   lib/
     backdropRequest.ts  store letting a click switch the Backdrop before the route changes
-    sceneStart.ts       whether the last page change started at scrollTop 0
   hooks/
     useSceneLink.ts     THE page-change routine (startScene) + click hook
     useAnimatedLogo.ts  THE stroke-pulse animation for logo SVGs
@@ -27,8 +26,8 @@ src/
     Backdrop/           fixed mono photo + canvas halftone reveal of the colour photo on /work
     SiteMenu/           fixed top-right home/work column
     HistoryScenes/      runs browser back/forward through startScene
+    ExternalIcon/       inline box-and-arrow SVG after external link text; currentColor
     ProjectNav/         fixed project list on /work; current = project filling >50% of the scroller
-    ScrollIn/           scrolls /work down to its first project when the change started at the top
     WorkLink/           inline link to /work using the scene routine
     SvgPathWrapper/     THE <g> wrapper paired with useAnimatedLogo
     Logo/               sticky header logo (draggable)

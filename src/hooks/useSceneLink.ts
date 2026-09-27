@@ -5,22 +5,16 @@ import { useCallback } from 'react'
 import { isColourPath } from '@/components/Backdrop/Backdrop'
 import { SCROLLER_ID } from '@/constants'
 import { requestColour } from '@/lib/backdropRequest'
-import { recordSceneStart } from '@/lib/sceneStart'
 
 const SCROLL_FALLBACK_MS = 1000
 
 // Every page shares the layout's scroller, padder and sticky logo, so
-// changing page is: start the backdrop, scroll back to the top (logo
-// in its low position), then swap the page below the logo.
+// changing page is: start the backdrop, scroll back to the top, then
+// swap the page below the logo.
 export function startScene(href: string, swap: () => void) {
   requestColour(isColourPath(href))
   const main = document.getElementById(SCROLLER_ID)
-  const atTop = !main || main.scrollTop < 1
-  recordSceneStart(atTop)
-  const reduce = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches
-  if (!main || atTop || reduce) {
+  if (!main || main.scrollTop < 1) {
     swap()
     return
   }
