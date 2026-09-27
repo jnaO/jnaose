@@ -40,6 +40,7 @@ export default function Work() {
               work · {projectNumber(i + 1)} /{' '}
               {projectNumber(projects.length)} ·{' '}
               {project.kind}
+              {project.status && ` · ${project.status}`}
             </p>
             <h2 className={workStyles.heading}>
               <a

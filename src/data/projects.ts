@@ -3,6 +3,7 @@ import type { StaticImageData } from 'next/image'
 import bakersmaths from '@/assets/images/projects/bakersmaths.png'
 import hangboardBuzzer from '@/assets/images/projects/hangboard-buzzer.png'
 import martakei from '@/assets/images/projects/martakei.png'
+import showMeTheMoney from '@/assets/images/projects/show-me-the-money.png'
 
 export interface Project {
   slug: string
@@ -12,6 +13,8 @@ export interface Project {
   kind: string
   icon: StaticImageData
   about: string
+  // Shown after the kind in the project's meta line, e.g. 'in review'.
+  status?: string
 }
 
 // Two-digit project number, e.g. 3 → "03".
@@ -48,5 +51,16 @@ export const projects: Project[] = [
     icon: bakersmaths,
     about:
       'A bread recipe library and baking calculator: sourdough recipes with baker’s percentages, and live bakes you follow step by step. It began as my own rabbit hole as a forgetful sourdough baker, so it catches you up on folds you forgot to time, and installed on your phone it buzzes your wrist when a timer ends.'
+  },
+  {
+    slug: 'show-me-the-money',
+    name: 'show me the money',
+    href: 'https://showmethemoney.jnao.se',
+    host: 'showmethemoney.jnao.se',
+    kind: 'Mac app',
+    status: 'in review',
+    icon: showMeTheMoney,
+    about:
+      'Personal finance that never leaves your Mac. Import your bank exports, let patterns categorise every transaction, plan with envelopes, and trace where the money goes on visual dashboards: no account, no sync, no tracking. I made the app and its site, and it’s in App Store review now.'
   }
 ]
