@@ -27,6 +27,12 @@ const C = {
 // being on the runway.
 const RUNWAY_THRESHOLD = 0.5
 
+const markFinale = (on: boolean) =>
+  document.documentElement.toggleAttribute(
+    'data-finale',
+    on
+  )
+
 const percent = (value: number, of: number) =>
   `${(value / of) * 100}%`
 
@@ -121,11 +127,13 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
         if (initial) {
           initial = false
           onRunway = next
+          markFinale(next)
           if (next) tl.seek(tl.duration, true)
           return
         }
         if (next === onRunway) return
         onRunway = next
+        markFinale(next)
         heartbeat.current?.pause()
         if (next) tl.play()
         else tl.reverse()
@@ -149,6 +157,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
       observer.disconnect()
       window.removeEventListener('resize', onResize)
       tl.revert()
+      markFinale(false)
     }
   }, [])
 

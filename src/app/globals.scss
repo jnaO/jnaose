@@ -25,6 +25,16 @@
   margin: 0;
 }
 
+// `.ui-chrome` = UI_CHROME in src/constants.ts; JnaoLogo's finale
+// tweens --ui-opacity and sets data-finale.
+.ui-chrome {
+  opacity: var(--ui-opacity, 1);
+}
+
+html[data-finale] .ui-chrome {
+  pointer-events: none;
+}
+
 html {
   background-image: linear-gradient(to bottom, #FFFFFF 50%, #000000 50%);
 }

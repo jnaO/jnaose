@@ -30,7 +30,9 @@ export const FINALE = {
   depthMin: 0,
   depthMax: 600,
   // `.box` opacity once re-formed fullscreen.
-  fullOpacity: 0.5
+  fullOpacity: 0.5,
+  // --ui-opacity 1 → 0 runs from `mid` for inDuration.
+  uiEase: 'linear'
 }
 
 const CENTRE = {
@@ -169,6 +171,16 @@ export function createFinale({
       bottom: full.bottom,
       width: full.width,
       opacity: FINALE.fullOpacity
+    },
+    'mid'
+  )
+
+  tl.add(
+    document.documentElement,
+    {
+      '--ui-opacity': [1, 0],
+      duration: FINALE.inDuration,
+      ease: FINALE.uiEase
     },
     'mid'
   )

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import pageStyles from '@/app/page.module.scss'
+import { UI_CHROME } from '@/constants'
 import { useSceneLink } from '@/hooks/useSceneLink'
 
 import styles from './siteMenu.module.scss'
@@ -30,7 +31,10 @@ function SiteMenu() {
   ]
 
   return (
-    <nav aria-label="Site" className={styles.menu}>
+    <nav
+      aria-label="Site"
+      className={classNames(styles.menu, UI_CHROME)}
+    >
       {items.map(({ label, href, current, onClick }) => (
         <Link
           key={label}

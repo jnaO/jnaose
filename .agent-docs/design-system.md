@@ -11,6 +11,7 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 
 ## Blend model
 `mix-blend-mode: difference` on `.segment`, `.title`, `.link`, `Logo` path, `JnaoLogo` `.stage`. Orange reads differently over sky vs ground — this contrast shift IS the look. Any new foreground element joins it by applying `difference`; a solid background on an ancestor breaks the effect.
+- **UI fade contract:** the footer finale fades out every element carrying the global class `ui-chrome` (`UI_CHROME` in `src/constants.ts`): currently `h1.title`, the `SiteMenu` nav and the `ProjectNav` nav. `globals.scss` gives `.ui-chrome { opacity: var(--ui-opacity, 1) }` and `html[data-finale] .ui-chrome { pointer-events: none }`; the finale timeline tweens `--ui-opacity` 1 → 0 on `<html>` during the in phase, and the trigger toggles `data-finale` on `<html>`. Any new fixed or sticky UI must carry `ui-chrome` on the element that itself has `mix-blend-mode` — never on an ancestor (opacity < 1 there isolates the blend group and the UI changes colour mid-fade). The `Backdrop` does not fade. Keyboard focus of faded links is not managed.
 
 ## Scroll model
 - `layout.tsx` owns the scroller: `<main id={SCROLLER_ID} class=.main>` (100vh, `overflow-y: scroll`, `scroll-snap-type: y mandatory`) → `.padder` → sticky `h1.title` Logo → page `{children}` → `footer.footer` JnaoLogo. The document itself does not scroll.
