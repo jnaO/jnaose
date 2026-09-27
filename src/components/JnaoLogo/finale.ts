@@ -28,6 +28,8 @@ export const FINALE = {
   // translateZ range at the off-screen pose; must stay < perspective.
   depthMin: 0,
   depthMax: 600,
+  // Fullscreen logo width as a fraction of the gutter-inset contain fit.
+  fullScale: 0.75,
   // Per-shard opacity once re-formed fullscreen.
   fullOpacity: 0.5,
   // --ui-opacity 1 → 0 and --finale-blur 0 → 1 run from `mid` for
@@ -85,7 +87,8 @@ function tweens(pose: Pose, direction: 'out' | 'in') {
 }
 
 // Box rect (px, relative to the stage) that contain-fits the logo in
-// the stage minus the resting gutter, centred.
+// the stage minus the resting gutter, scaled by FINALE.fullScale,
+// centred.
 function fullscreenRect(
   stage: HTMLElement,
   box: HTMLElement
@@ -96,10 +99,12 @@ function fullscreenRect(
   const stageW = stage.clientWidth
   const stageH = stage.clientHeight
   const ratio = VIEWBOX.width / VIEWBOX.height
-  const width = Math.min(
-    stageW - 2 * gutterX,
-    (stageH - 2 * gutterY) * ratio
-  )
+  const width =
+    FINALE.fullScale *
+    Math.min(
+      stageW - 2 * gutterX,
+      (stageH - 2 * gutterY) * ratio
+    )
   return {
     left: (stageW - width) / 2,
     bottom: (stageH - width / ratio) / 2,
