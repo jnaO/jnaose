@@ -15,7 +15,8 @@ import {
   SCROLLER_ID,
   SITE_DESCRIPTION,
   SITE_NAME,
-  SITE_URL
+  SITE_URL,
+  UI_CHROME
 } from '@/constants'
 
 import icons from './icons'
@@ -58,7 +59,9 @@ export default function RootLayout({
         <Backdrop />
         <main id={SCROLLER_ID} className={styles.main}>
           <div className={styles.padder} />
-          <h1 className={styles.title}>
+          <h1
+            className={classNames(styles.title, UI_CHROME)}
+          >
             <Logo alt="jnaO AB" className={styles.logo} />
           </h1>
           {children}

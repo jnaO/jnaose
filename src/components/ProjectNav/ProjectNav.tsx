@@ -5,7 +5,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 
 import pageStyles from '@/app/page.module.scss'
-import { SCROLLER_ID } from '@/constants'
+import { SCROLLER_ID, UI_CHROME } from '@/constants'
 import {
   type Project,
   projectNumber
@@ -65,7 +65,7 @@ function ProjectNav({ projects }: ProjectNavProps) {
   return (
     <nav
       aria-label="Projects"
-      className={classNames(styles.nav, {
+      className={classNames(styles.nav, UI_CHROME, {
         [styles.leaving]: leaving
       })}
     >

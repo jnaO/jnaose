@@ -1,13 +1,54 @@
-.title2 {
+// `.footer` (page.module.scss) is two scroller heights tall; 50% of it
+// is one scroller height.
+.stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 50%;
   margin: 0;
+  overflow: clip;
   mix-blend-mode: difference;
-  max-width: 200px;
+  pointer-events: none;
 }
 
-.logo {
+.snap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  scroll-snap-align: end;
+  pointer-events: none;
+}
+
+.footerSnap {
+  top: 0;
+}
+
+.runwaySnap {
+  top: 50%;
+}
+
+// The finale timeline overwrites exactly left, bottom, width and
+// --shard-opacity. Opacity below 1 on `.box` would flatten the orbit's
+// preserve-3d, so it sits on each shard.
+.box {
+  --shard-opacity: .5;
+  position: absolute;
+  left: max(env(safe-area-inset-left), 1rem);
+  bottom: max(env(safe-area-inset-bottom), 1rem);
   width: 5rem;
-  height: 5rem;
-  opacity: .5;
+  aspect-ratio: 994 / 981;
+}
+
+// Set by orbit.ts while the idle orbit runs.
+.box[data-orbit] {
+  transform-style: preserve-3d;
+}
+
+.shard {
+  position: absolute;
+  display: block;
+  opacity: var(--shard-opacity);
 }
 
 .blue {

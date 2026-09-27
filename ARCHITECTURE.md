@@ -15,7 +15,7 @@ src/
     pageMetadata.ts     THE per-page metadata builder (title, description, canonical, full openGraph); every page's `metadata` goes through it
     sitemap.ts          lists every route; add new routes to PATHS
     robots.ts           allow all, points at the sitemap
-  constants.ts          SCROLLER_ID (id of the layout's <main>), SITE_URL / SITE_NAME / SITE_DESCRIPTION
+  constants.ts          SCROLLER_ID (id of the layout's <main>), UI_CHROME (class for UI the footer finale fades), SITE_URL / SITE_NAME / SITE_DESCRIPTION
   data/projects.ts      THE project list for /work (name, href, kind, icon, about)
   lib/
     backdropRequest.ts  store letting a click switch the Backdrop before the route changes
@@ -31,7 +31,7 @@ src/
     WorkLink/           inline link to /work using the scene routine
     SvgPathWrapper/     THE <g> wrapper paired with useAnimatedLogo
     Logo/               sticky header logo (draggable)
-    JnaoLogo/           footer logo
+    JnaoLogo/           footer logo: one <svg> per shard (shards.ts); finale.ts = explode/re-form timeline, orbit-to-reverse leave + FINALE tuning constants; orbit.ts = idle orbit controller + ORBIT tuning constants
     Eyes/               blinking inline glyph in copy
     GoksoyraLogo/       music link logo
     DMBLogo/            music link logo
