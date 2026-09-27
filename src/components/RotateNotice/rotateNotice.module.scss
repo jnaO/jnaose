@@ -28,9 +28,7 @@
   width: 4rem;
   height: 4rem;
   rotate: 90deg;
-  @media (prefers-reduced-motion: no-preference) {
-    animation: turn 2.4s cubic-bezier(0.6, 0, 0.2, 1) infinite;
-  }
+  animation: turn 2.4s cubic-bezier(0.6, 0, 0.2, 1) infinite;
 }
 
 .text {
