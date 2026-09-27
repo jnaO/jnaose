@@ -24,7 +24,10 @@ export const ORBIT = {
   // from FINALE.perspective while orbiting to keep this.
   zBudget: 0.5,
   // Extra translateZ (px) per DOM index while orbiting.
-  layerGap: 0.01
+  layerGap: 0.01,
+  // Whole spins per cycle of each plate shard about its own seeded
+  // axis through its centre; each plate gets one, seeded.
+  plateSpins: [-3, -2, 2, 3]
 }
 
 type Vec = [number, number, number]
@@ -51,14 +54,14 @@ function rotate(v: Vec, axis: Vec, theta: number): Vec {
 
 const DEG = 180 / Math.PI
 
-// The rotation by `theta` about `axis` as the CSS angles (deg) of
+// The rotation `turn` as the CSS angles (deg) of
 // `rotateX(a) rotateY(b) rotateZ(c)`, anime's fixed rotation order:
 // R = Rx(a)·Ry(b)·Rz(c).
-function eulerXYZ(axis: Vec, theta: number) {
+function eulerXYZ(turn: (v: Vec) => Vec) {
   const [x, y, z] = [0, 1, 2].map((j) => {
     const unit: Vec = [0, 0, 0]
     unit[j] = 1
-    return rotate(unit, axis, theta)
+    return turn(unit)
   })
   // Column vectors: R[i][j] = [x, y, z][j][i].
   const sinB = Math.max(-1, Math.min(1, z[0]))
@@ -86,24 +89,41 @@ export function createOrbit({
   shards
 }: OrbitOptions) {
   const random = utils.createSeededRandom(ORBIT.seed)
+  const spinRandom = utils.createSeededRandom(
+    ORBIT.seed + 1
+  )
   const tilt = (ORBIT.tilt * Math.PI) / 180
   const axis: Vec = [0, -Math.sin(tilt), Math.cos(tilt)]
   const cycle = ORBIT.turn * ORBIT.cycleTurns
 
-  const bodies = shards.map(({ bbox: [x, y, w, h] }) => {
-    const centre: Vec = [
-      x + w / 2 - VIEWBOX.width / 2,
-      y + h / 2 - VIEWBOX.height / 2,
-      0
-    ]
-    const turns =
-      ORBIT.shardTurns[
-        random(0, ORBIT.shardTurns.length - 1)
+  const bodies = shards.map(
+    ({ bbox: [x, y, w, h], tone }) => {
+      const centre: Vec = [
+        x + w / 2 - VIEWBOX.width / 2,
+        y + h / 2 - VIEWBOX.height / 2,
+        0
       ]
-    const height =
-      random(-1, 1, 4) * ORBIT.float * VIEWBOX.width
-    return { centre, turns, height }
-  })
+      const turns =
+        ORBIT.shardTurns[
+          random(0, ORBIT.shardTurns.length - 1)
+        ]
+      const height =
+        random(-1, 1, 4) * ORBIT.float * VIEWBOX.width
+      const spins = tone.endsWith('Plate')
+        ? ORBIT.plateSpins[
+            spinRandom(0, ORBIT.plateSpins.length - 1)
+          ]
+        : 0
+      const lean = Math.acos(spinRandom(-1, 1, 4))
+      const heading = spinRandom(0, 2 * Math.PI, 4)
+      const spinAxis: Vec = [
+        Math.sin(lean) * Math.cos(heading),
+        Math.sin(lean) * Math.sin(heading),
+        Math.cos(lean)
+      ]
+      return { centre, turns, height, spins, spinAxis }
+    }
+  )
 
   // Upper bound of a shard centre's |z| over a whole cycle, in viewBox
   // units.
@@ -112,7 +132,10 @@ export function createOrbit({
       const hub = dot(axis, centre) * axis[2]
       return (
         Math.abs(hub) +
-        Math.hypot(centre[2] - hub, cross(axis, centre)[2]) +
+        Math.hypot(
+          centre[2] - hub,
+          cross(axis, centre)[2]
+        ) +
         Math.abs(height * axis[2])
       )
     })
@@ -126,23 +149,30 @@ export function createOrbit({
   let poses: Pose[] = []
 
   // Each shard moves rigidly with its orbit: about its own centre it
-  // turns by the same rotation that carries its centre round the axis.
+  // turns by the same rotation that carries its centre round the axis,
+  // after its own spin (plates only) about `spinAxis`.
   const pose = (): Pose[] => {
     const scale = width / VIEWBOX.width
     const phase = s / cycle
     const lift = Math.sin(Math.PI * phase) ** 2
-    return bodies.map(({ centre, turns, height }, i) => {
-      const theta = 2 * Math.PI * turns * phase
-      const q = rotate(centre, axis, theta)
-      const at = (j: number) =>
-        (q[j] + height * lift * axis[j] - centre[j]) * scale
-      return {
-        translateX: at(0),
-        translateY: at(1),
-        translateZ: at(2) + i * ORBIT.layerGap,
-        ...eulerXYZ(axis, theta)
+    return bodies.map(
+      ({ centre, turns, height, spins, spinAxis }, i) => {
+        const theta = 2 * Math.PI * turns * phase
+        const phi = 2 * Math.PI * spins * phase
+        const q = rotate(centre, axis, theta)
+        const at = (j: number) =>
+          (q[j] + height * lift * axis[j] - centre[j]) *
+          scale
+        return {
+          translateX: at(0),
+          translateY: at(1),
+          translateZ: at(2) + i * ORBIT.layerGap,
+          ...eulerXYZ((v) =>
+            rotate(rotate(v, spinAxis, phi), axis, theta)
+          )
+        }
       }
-    })
+    )
   }
 
   const render = () => {
@@ -162,7 +192,10 @@ export function createOrbit({
     const reach = (zReach * width) / VIEWBOX.width
     box.style.perspective = `${
       on
-        ? Math.max(FINALE.perspective, reach / ORBIT.zBudget)
+        ? Math.max(
+            FINALE.perspective,
+            reach / ORBIT.zBudget
+          )
         : FINALE.perspective
     }px`
   }
