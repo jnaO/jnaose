@@ -227,6 +227,29 @@ function useViewportWidth() {
   return width
 }
 
+// True while <html>'s --finale-blur (written by JnaoLogo's finale)
+// is above 0.
+function useFinaleBlur() {
+  const [blurring, setBlurring] = useState(false)
+  useEffect(() => {
+    const html = document.documentElement
+    const sync = () =>
+      setBlurring(
+        Number.parseFloat(
+          html.style.getPropertyValue('--finale-blur')
+        ) > 0
+      )
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(html, {
+      attributes: true,
+      attributeFilter: ['style']
+    })
+    return () => observer.disconnect()
+  }, [])
+  return blurring
+}
+
 function Backdrop() {
   const pathname = usePathname()
   const requested = useRequestedColour()
@@ -234,6 +257,7 @@ function Backdrop() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const shown = useRef<boolean | null>(null)
   const w = useViewportWidth()
+  const blurring = useFinaleBlur()
 
   useEffect(() => requestColour(null), [pathname])
 
@@ -301,7 +325,7 @@ function Backdrop() {
         style={{ backgroundImage: `url(${bg.src})` }}
       />
       <canvas ref={canvasRef} className={styles.colour} />
-      <div className={styles.blur} />
+      {blurring && <div className={styles.blur} />}
     </div>
   )
 }

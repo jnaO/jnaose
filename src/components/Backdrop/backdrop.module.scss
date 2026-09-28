@@ -25,6 +25,9 @@ $blur-max: 24px;
 // JnaoLogo's finale tweens --finale-blur 0 → 1 on <html>. A backdrop
 // filter samples past its edges from its own edge pixels, so the
 // blurred edges stay opaque at every blur value and viewport size.
+// Backdrop mounts it only while --finale-blur is above 0: on iOS
+// WebKit a backdrop-filter layer does not repaint when the canvas
+// under it redraws, so the halftone transition freezes on screen.
 .blur {
   position: absolute;
   inset: 0;
