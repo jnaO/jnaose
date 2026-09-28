@@ -9,6 +9,12 @@
   overflow: clip;
   mix-blend-mode: difference;
   pointer-events: none;
+  // iOS Safari tints its status bar from a sticky element at the top
+  // edge; this one would turn it white.
+  @media (pointer: coarse) {
+    top: 10px;
+    height: calc(50% - 10px);
+  }
 }
 
 .snap {
