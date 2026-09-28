@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   icons
 }
 export const viewport: Viewport = {
-  themeColor: '#FFFFFF',
+  themeColor: '#000000',
   width: 'device-width',
   viewportFit: 'cover',
   initialScale: 1
