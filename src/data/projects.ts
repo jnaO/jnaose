@@ -40,7 +40,7 @@ export const projects: Project[] = [
     kind: 'iPhone app',
     icon: hangboardBuzzer,
     about:
-      'An interval timer for hangboard training. Set up your hangs once, press start, and it counts you through every hang and rest with sound and haptics, logs the session to Apple Health, and ends with an arcade round on a Game Center leaderboard. I made the app and its site: free, no ads, no account, no data collected.'
+      'An interval timer for hangboard training. Set up your hangs once, press start, and it counts you through every hang and rest with sound and haptics, logs the session to Apple Health, and ends with an arcade round on a Game Center leaderboard. Free, no ads, no account, no data collected. You can download it from the Apple App Store.'
   },
   {
     slug: 'bakers-maths',
@@ -58,9 +58,8 @@ export const projects: Project[] = [
     href: 'https://showmethemoney.jnao.se',
     host: 'showmethemoney.jnao.se',
     kind: 'Mac app',
-    status: 'in review',
     icon: showMeTheMoney,
     about:
-      'Personal finance that never leaves your Mac. Import your bank exports, let patterns categorise every transaction, plan with envelopes, and trace where the money goes on visual dashboards: no account, no sync, no tracking. I made the app and its site, and it’s in App Store review now.'
+      'Personal finance that never leaves your Mac. Import your bank exports, let patterns categorise every transaction, plan with envelopes, and trace where the money goes on visual dashboards: no account, no sync, no tracking. You can download it from the Apple App Store.'
   }
 ]
