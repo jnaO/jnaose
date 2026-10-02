@@ -2,6 +2,8 @@
 
 import classNames from 'classnames'
 import { usePathname } from 'next/navigation'
+import type { StaticImageData } from 'next/image'
+import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import bg from '@/assets/images/bg.jpg'
@@ -40,7 +42,7 @@ const LEAVE_SPEED = 1.4
 const FADE = 0.22
 
 interface Art {
-  src: string
+  image: StaticImageData
   // Share of the drawn photo's height pushed above the viewport.
   offset: number
 }
@@ -53,8 +55,21 @@ interface Dot {
   ink: number
 }
 
-const LANDSCAPE: Art = { src: forest.src, offset: 0 }
-const PORTRAIT: Art = { src: fireweed.src, offset: 0.375 }
+const LANDSCAPE: Art = { image: forest, offset: 0 }
+const PORTRAIT: Art = { image: fireweed, offset: 0.375 }
+
+// CSS variables for `.still`, which draws the settled colour photo
+// the way paintArt does, before the canvas can.
+const artVars = (name: string, { image, offset }: Art) => ({
+  [`--${name}`]: `url(${image.src})`,
+  [`--${name}-ratio`]: image.height / image.width,
+  [`--${name}-offset`]: offset
+})
+const STILL_VARS = {
+  ...artVars('landscape', LANDSCAPE),
+  ...artVars('portrait', PORTRAIT),
+  '--fade': FADE
+} as React.CSSProperties
 
 export const isColourPath = (pathname: string) =>
   pathname.startsWith('/work')
@@ -234,6 +249,9 @@ function Backdrop() {
   const colour = requested ?? isColourPath(pathname)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const shown = useRef<boolean | null>(null)
+  // False until the canvas has drawn once; a page that loads in colour
+  // shows `.still` until then.
+  const [painted, setPainted] = useState(false)
   const w = useViewportWidth()
   const blurring = useFinaleBlur()
 
@@ -253,23 +271,24 @@ function Backdrop() {
     const wasShown = shown.current
     shown.current = colour
 
-    loadImage(art.src).then((img) => {
+    loadImage(art.image.src).then((img) => {
       if (cancelled) return
       canvas.width = w * dpr
       canvas.height = h * dpr
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const painted = paintArt(img, art, w, h, dpr)
+      const artCanvas = paintArt(img, art, w, h, dpr)
 
       const settle = () => {
         ctx.clearRect(0, 0, w, h)
-        if (colour) ctx.drawImage(painted, 0, 0, w, h)
+        if (colour) ctx.drawImage(artCanvas, 0, 0, w, h)
+        setPainted(true)
       }
       if (!animate || wasShown === colour) {
         settle()
         return
       }
 
-      const { dots, spacing } = buildDots(painted, w, h)
+      const { dots, spacing } = buildDots(artCanvas, w, h)
       const duration = colour
         ? TOTAL_MS
         : TOTAL_MS / LEAVE_SPEED
@@ -281,7 +300,7 @@ function Backdrop() {
           return
         }
         const time = (colour ? p : 1 - p) * TOTAL_MS
-        drawFrame(ctx, painted, dots, spacing, w, h, time)
+        drawFrame(ctx, artCanvas, dots, spacing, w, h, time)
         frame = requestAnimationFrame(tick)
       }
       frame = requestAnimationFrame(tick)
@@ -302,6 +321,9 @@ function Backdrop() {
         className={styles.mono}
         style={{ backgroundImage: `url(${bg.src})` }}
       />
+      {colour && !painted && (
+        <div className={styles.still} style={STILL_VARS} />
+      )}
       <canvas ref={canvasRef} className={styles.colour} />
       {blurring && <div className={styles.blur} />}
     </div>
