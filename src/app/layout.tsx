@@ -11,6 +11,7 @@ import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
 import RotateNotice from '@/components/RotateNotice/RotateNotice'
+import TopCover from '@/components/TopCover/TopCover'
 import SiteMenu from '@/components/SiteMenu/SiteMenu'
 import {
   SCROLLER_ID,
@@ -58,6 +59,7 @@ export default function RootLayout({
         )}
       >
         <Backdrop />
+        <TopCover />
         <main id={SCROLLER_ID} className={styles.main}>
           <div className={styles.padder} />
           <h1

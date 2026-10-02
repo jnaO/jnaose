@@ -5,6 +5,9 @@
   --callout-border-rgb: 172, 175, 176;
   --card-rgb: 180, 185, 188;
   --card-border-rgb: 131, 134, 135;
+  // Read by TopCover (height) and JnaoLogo (coarse-pointer
+  // stage offset).
+  --top-cover-height: 5px;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -5,7 +5,7 @@ Next.js App Router, SCSS modules, anime.js v4, two routes (`/`, `/work`) sharing
 ```
 src/
   app/
-    layout.tsx          THE shared scene: Backdrop, <main> scroller, top padder + sticky Logo, {children}, footer JnaoLogo, SiteMenu, HistoryScenes
+    layout.tsx          THE shared scene: Backdrop, TopCover, <main> scroller, top padder + sticky Logo, {children}, footer JnaoLogo, SiteMenu, HistoryScenes
     page.tsx            home segments only
     work/page.tsx       one snap segment per `projects` entry + ProjectNav
     work/work.module.scss  project segment, icon, text, scroll-driven enter fade
@@ -22,8 +22,10 @@ src/
   hooks/
     useSceneLink.ts     THE page-change routine (startScene) + click hook
     useAnimatedLogo.ts  THE stroke-pulse animation for logo SVGs
+    useFinaleBlur.ts    true while <html>'s --finale-blur (footer finale) is above 0
   components/
     Backdrop/           fixed mono photo + canvas halftone reveal of the colour photo on /work
+    TopCover/           invisible fixed black top strip (opacity 0, --top-cover-height tall) that iOS Safari samples to keep its status bar black
     SiteMenu/           fixed top-right home/work column
     HistoryScenes/      runs browser back/forward through startScene
     ExternalIcon/       inline box-and-arrow SVG after external link text; currentColor

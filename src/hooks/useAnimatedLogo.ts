@@ -1,4 +1,4 @@
-import { animate, createDrawable, utils } from 'animejs'
+import { animate, createDrawable, stagger, utils } from 'animejs'
 import Bowser from 'bowser'
 import { useEffect, useState } from 'react'
 
@@ -82,7 +82,7 @@ export function useAnimatedLogo(
           ...(mergedConfig.extraStrokeWidths || []),
           mergedConfig.strokeWidth
         ],
-        delay: (el: any, i: number) => i * 100
+        delay: stagger(100)
       }
     )
   }, [ref, internetExplorer, strokeWidthFull, mergedConfig])

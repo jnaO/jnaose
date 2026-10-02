@@ -1,0 +1,14 @@
+// iOS Safari 26+ colours its status bar from the background-color of
+// the topmost fixed layer 4px below the top edge, including one at
+// opacity 0; this strip is that layer, so it must be deeper than 4px.
+.cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--top-cover-height);
+  z-index: 1000;
+  background-color: #000;
+  opacity: 0;
+  pointer-events: none;
+}

@@ -15,6 +15,31 @@ $blur-max: 24px;
   background-size: cover;
 }
 
+// Matches paintArt in Backdrop.tsx: photo at viewport width, shifted up
+// by its offset, bottom --fade of it fading to black, black below.
+// Orientation matches Backdrop's `w < h` pick except at exactly square.
+.still {
+  --src: var(--landscape);
+  --ratio: var(--landscape-ratio);
+  --offset: var(--landscape-offset);
+  --dh: calc(100vw * var(--ratio));
+  position: absolute;
+  inset: 0;
+  background-color: #000;
+  background-image:
+    linear-gradient(transparent calc((1 - var(--fade)) * 100%), #000),
+    var(--src);
+  background-size: 100% var(--dh);
+  background-position: 0 calc(-1 * var(--offset) * var(--dh));
+  background-repeat: no-repeat;
+
+  @media (orientation: portrait) {
+    --src: var(--portrait);
+    --ratio: var(--portrait-ratio);
+    --offset: var(--portrait-offset);
+  }
+}
+
 .colour {
   position: absolute;
   inset: 0;
