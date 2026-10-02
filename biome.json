@@ -2,10 +2,7 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "src/**",
-      "public/**"
-    ]
+    "includes": ["src/**", "public/**"]
   },
   "vcs": {
     "enabled": true,
@@ -30,7 +27,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "a11y": {
         "noAccessKey": "error",
         "noAriaUnsupportedElements": "error",
@@ -168,9 +165,7 @@
     }
   },
   "javascript": {
-    "globals": [
-      "JSX"
-    ],
+    "globals": ["JSX"],
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
