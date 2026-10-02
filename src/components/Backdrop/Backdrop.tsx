@@ -9,6 +9,7 @@ import fireweed from '@/assets/images/fireweed.jpg'
 import forest from '@/assets/images/forest.jpg'
 
 import { ROTATE_KEEP } from '@/constants'
+import { useFinaleBlur } from '@/hooks/useFinaleBlur'
 import {
   requestColour,
   useRequestedColour
@@ -225,29 +226,6 @@ function useViewportWidth() {
     }
   }, [])
   return width
-}
-
-// True while <html>'s --finale-blur (written by JnaoLogo's finale)
-// is above 0.
-function useFinaleBlur() {
-  const [blurring, setBlurring] = useState(false)
-  useEffect(() => {
-    const html = document.documentElement
-    const sync = () =>
-      setBlurring(
-        Number.parseFloat(
-          html.style.getPropertyValue('--finale-blur')
-        ) > 0
-      )
-    sync()
-    const observer = new MutationObserver(sync)
-    observer.observe(html, {
-      attributes: true,
-      attributeFilter: ['style']
-    })
-    return () => observer.disconnect()
-  }, [])
-  return blurring
 }
 
 function Backdrop() {
