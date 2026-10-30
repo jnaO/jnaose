@@ -15,10 +15,14 @@ src/
     pageMetadata.ts     THE per-page metadata builder (title, description, canonical, full openGraph); every page's `metadata` goes through it
     sitemap.ts          lists every route; add new routes to PATHS
     robots.ts           allow all, points at the sitemap
-  constants.ts          SCROLLER_ID (id of the layout's <main>), UI_CHROME (class for UI the footer finale fades), SITE_URL / SITE_NAME / SITE_DESCRIPTION
+    llms.txt/route.ts   lib/siteSummary.ts as text/plain; next.config.js advertises it and the sitemap in the homepage Link header
+    index.md/route.ts   lib/siteSummary.ts as text/markdown; next.config.js rewrites `Accept: text/markdown` requests for pages here and sets `Vary: Accept`
+  constants.ts          SCROLLER_ID (id of the layout's <main>), UI_CHROME (class for UI the footer finale fades), SITE_URL / SITE_NAME / SITE_DESCRIPTION / CONTACT_EMAIL
   data/projects.ts      THE project list for /work (name, href, kind, icon, about)
+  data/music.ts         THE music links (name, href)
   lib/
     backdropRequest.ts  store letting a click switch the Backdrop before the route changes
+    siteSummary.ts      THE markdown site summary for agents, built from data/projects.ts and data/music.ts
   hooks/
     useSceneLink.ts     THE page-change routine (startScene) + click hook
     useAnimatedLogo.ts  THE stroke-pulse animation for logo SVGs
