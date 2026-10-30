@@ -5,7 +5,7 @@ export const dynamic = 'force-static'
 export function GET() {
   const body = [
     'User-Agent: *',
-    'Content-Signal: ai-train=no, search=yes, ai-input=no',
+    'Content-Signal: ai-train=no, search=yes, ai-input=yes',
     'Allow: /',
     '',
     `Sitemap: ${new URL('/sitemap.xml', SITE_URL)}`
