@@ -11,8 +11,8 @@ import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
 import Logo from '@/components/Logo/Logo'
 import RotateNotice from '@/components/RotateNotice/RotateNotice'
-import TopCover from '@/components/TopCover/TopCover'
 import SiteMenu from '@/components/SiteMenu/SiteMenu'
+import TopCover from '@/components/TopCover/TopCover'
 import {
   SCROLLER_ID,
   SITE_DESCRIPTION,

@@ -21,7 +21,10 @@
   justify-content: flex-start;
   align-items: flex-end;
   bottom: 0;
-  padding: max(env(safe-area-inset-top), 1rem) max(env(safe-area-inset-right), 1rem) max(env(safe-area-inset-bottom), 1rem) max(env(safe-area-inset-left), 1rem);
+  padding: max(env(safe-area-inset-top), 1rem)
+    max(env(safe-area-inset-right), 1rem)
+    max(env(safe-area-inset-bottom), 1rem)
+    max(env(safe-area-inset-left), 1rem);
   width: 100%;
   height: 100%;
   mix-blend-mode: difference;
@@ -51,7 +54,6 @@
   height: auto;
 }
 
-
 .paragraph {
   font-size: 1rem;
   line-height: 1.5;
@@ -66,19 +68,21 @@
   height: 3rem;
   padding-right: 1rem;
   background-color: rgba(255, 185, 21, 0);
-  outline: solid 1px rgba(255,255,255,0);
-  transition-property: color, outline-color, background-color;
-  transition-duration: .9s, .5s, 1.3s;
+  outline: solid 1px rgba(255, 255, 255, 0);
+  transition-property:
+    color,
+    outline-color,
+    background-color;
+  transition-duration: 0.9s, 0.5s, 1.3s;
   transition-timing-function: ease-in-out;
   &:focus,
   &:hover {
     color: var(--highlight-color);
-    outline-color: rgba(255,255,255,1);
-    background-color: rgba(255,255,255,.2);
-    transition-duration: .1s, .1s, .1s;
+    outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.2);
+    transition-duration: 0.1s, 0.1s, 0.1s;
   }
 }
-
 
 .list {
   @extend .paragraph;

@@ -1,8 +1,8 @@
 'use client'
 
 import classNames from 'classnames'
-import { usePathname } from 'next/navigation'
 import type { StaticImageData } from 'next/image'
+import { usePathname } from 'next/navigation'
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -255,6 +255,7 @@ function Backdrop() {
   const w = useViewportWidth()
   const blurring = useFinaleBlur()
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger; a request is cleared when the route lands
   useEffect(() => requestColour(null), [pathname])
 
   useEffect(() => {

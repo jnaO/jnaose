@@ -5,7 +5,9 @@
 // Phone-sized landscape touch screen; the widest phone in landscape
 // is under 60rem, the smallest tablet is wider. Everything in <body>
 // except `.rotate-keep` (ROTATE_KEEP in src/constants.ts) is hidden.
-@media (orientation: landscape) and (max-width: 60rem) and (max-height: 32rem) and (pointer: coarse) {
+@media (orientation: landscape) and (max-width: 60rem) and (
+    max-height: 32rem
+  ) and (pointer: coarse) {
   .notice {
     position: fixed;
     inset: 0;

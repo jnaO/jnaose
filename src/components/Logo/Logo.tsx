@@ -13,6 +13,12 @@ import SvgPathWrapper from '@/components/SvgPathWrapper/SvgPathWrapper'
 import { useAnimatedLogo } from '@/hooks/useAnimatedLogo'
 import styles from './logo.module.scss'
 
+const C = {
+  max: 1.01,
+  bounce: 0.85,
+  duration: 250
+}
+
 interface LogoProps {
   className?: string
   alt?: string
@@ -32,12 +38,6 @@ function Logo({
     strokeColorBase: 'gold',
     strokeColorAlternative: 'gold'
   })
-
-  const C = {
-    max: 1.01,
-    bounce: 0.85,
-    duration: 250
-  }
 
   useEffect(() => {
     scope.current = createScope({ root }).add((self) => {

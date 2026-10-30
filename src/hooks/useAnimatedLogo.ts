@@ -1,4 +1,9 @@
-import { animate, createDrawable, stagger, utils } from 'animejs'
+import {
+  animate,
+  createDrawable,
+  stagger,
+  utils
+} from 'animejs'
 import Bowser from 'bowser'
 import { useEffect, useState } from 'react'
 

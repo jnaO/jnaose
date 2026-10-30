@@ -41,4 +41,4 @@ src/
   assets/images/        bg.jpg (mono), forest.jpg / fireweed.jpg (colour), projects/*.png icons
 ```
 
-Lint: `pnpm lint` (Biome).
+Lint: `pnpm lint` (`biome check`: lint, format, import order; includes the `next` and `react` rule domains). Biome does not type-check; `pnpm exec tsc --noEmit` does.
