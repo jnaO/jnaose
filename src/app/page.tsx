@@ -3,7 +3,12 @@ import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
 import WorkLink from '@/components/WorkLink/WorkLink'
-import { SITE_DESCRIPTION, SITE_NAME } from '@/constants'
+import {
+  CONTACT_EMAIL,
+  SITE_DESCRIPTION,
+  SITE_NAME
+} from '@/constants'
+import { music } from '@/data/music'
 import styles from './page.module.scss'
 import { pageMetadata } from './pageMetadata'
 
@@ -24,7 +29,7 @@ export default function Home() {
           For contact you can{' '}
           <a
             className={styles.link}
-            href="mailto:jan@jnao.se?subject=webdeveloper"
+            href={`mailto:${CONTACT_EMAIL}?subject=webdeveloper`}
           >
             email
           </a>{' '}
@@ -47,7 +52,7 @@ export default function Home() {
           <li className={styles.listItem}>
             <a
               className={styles.listLink}
-              href="https://goksøyra.com"
+              href={music.goksoyra.href}
             >
               <GoksoyraLogo />
             </a>
@@ -55,7 +60,7 @@ export default function Home() {
           <li className={styles.listItem}>
             <a
               className={styles.listLink}
-              href="https://djupmyrberget.se"
+              href={music.dmb.href}
             >
               <DMBLogo />
             </a>
