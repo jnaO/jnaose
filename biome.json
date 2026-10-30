@@ -2,11 +2,18 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignoreUnknown": true,
-    "includes": ["src/**", "public/**"]
+    "includes": [
+      "**",
+      "!public",
+      "!next-env.d.ts",
+      "!tsconfig.json",
+      "!**/*.md"
+    ]
   },
   "vcs": {
     "enabled": true,
-    "clientKind": "git"
+    "clientKind": "git",
+    "useIgnoreFile": true
   },
   "formatter": {
     "enabled": true,
@@ -26,6 +33,10 @@
   },
   "linter": {
     "enabled": true,
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    },
     "rules": {
       "preset": "none",
       "a11y": {
