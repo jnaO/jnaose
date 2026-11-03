@@ -26,17 +26,5 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "typescript": "^7.0.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "19.3.0",
-      "@types/react-dom": "19.3.0"
-    },
-    "ignoredBuiltDependencies": [
-      "@parcel/watcher"
-    ],
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
   }
 }
