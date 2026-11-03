@@ -18,7 +18,7 @@ src/
     llms.txt/route.ts   lib/siteSummary.ts as text/plain; next.config.js advertises it and the sitemap in the homepage Link header
     index.md/route.ts   lib/siteSummary.ts as text/markdown; next.config.js rewrites `Accept: text/markdown` requests for pages here and sets `Vary: Accept`
   constants.ts          SCROLLER_ID (id of the layout's <main>), UI_CHROME (class for UI the footer finale fades), SITE_URL / SITE_NAME / SITE_DESCRIPTION / CONTACT_EMAIL
-  data/projects.ts      THE project list for /work (name, href, kind, icon, about)
+  data/projects.ts      THE project list for /work (name, links, kind, optional icon, about)
   data/music.ts         THE music links (name, href)
   lib/
     backdropRequest.ts  store letting a click switch the Backdrop before the route changes
@@ -44,5 +44,7 @@ src/
     BakersMathsLogo/    data-attribute-driven draw timeline; not rendered anywhere
   assets/images/        bg.jpg (mono), forest.jpg / fireweed.jpg (colour), projects/*.png icons
 ```
+
+Agent discovery (Link header, llms.txt, markdown negotiation, Content-Signal), including how to repeat it on other sites: [.agent-docs/ai-discoverability.md](.agent-docs/ai-discoverability.md).
 
 Lint: `pnpm lint` (`biome check`: lint, format, import order; includes the `next` and `react` rule domains). Biome does not type-check; `pnpm exec tsc --noEmit` does.

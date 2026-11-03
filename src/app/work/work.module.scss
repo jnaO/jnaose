@@ -44,6 +44,8 @@
 }
 
 .name {
+  display: inline-flex;
+  align-items: flex-end;
   text-decoration: none;
   height: auto;
   min-height: 3.5rem;

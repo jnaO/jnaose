@@ -27,14 +27,16 @@ export default function Work() {
           id={project.slug}
           className={workStyles.project}
         >
-          <Image
-            src={project.icon}
-            alt=""
-            width={88}
-            height={88}
-            loading="eager"
-            className={workStyles.icon}
-          />
+          {project.icon && (
+            <Image
+              src={project.icon}
+              alt=""
+              width={88}
+              height={88}
+              loading="eager"
+              className={workStyles.icon}
+            />
+          )}
           <div className={workStyles.text}>
             <p className={workStyles.meta}>
               work · {projectNumber(i + 1)} /{' '}
@@ -43,23 +45,35 @@ export default function Work() {
               {project.status && ` · ${project.status}`}
             </p>
             <h2 className={workStyles.heading}>
-              <a
-                className={classNames(
-                  styles.link,
-                  workStyles.name
-                )}
-                href={project.href}
-              >
-                {project.name}
-              </a>
+              {project.links.length === 1 ? (
+                <a
+                  className={classNames(
+                    styles.link,
+                    workStyles.name
+                  )}
+                  href={project.links[0].href}
+                >
+                  {project.name}
+                </a>
+              ) : (
+                <span className={workStyles.name}>
+                  {project.name}
+                </span>
+              )}
             </h2>
             <p className={workStyles.about}>
               {project.about}
             </p>
-            <a className={styles.link} href={project.href}>
-              {project.host}
-              <ExternalIcon />
-            </a>
+            {project.links.map(({ href, host }) => (
+              <a
+                key={href}
+                className={styles.link}
+                href={href}
+              >
+                {host}
+                <ExternalIcon />
+              </a>
+            ))}
           </div>
         </section>
       ))}

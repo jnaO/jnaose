@@ -5,13 +5,17 @@ import hangboardBuzzer from '@/assets/images/projects/hangboard-buzzer.png'
 import martakei from '@/assets/images/projects/martakei.png'
 import showMeTheMoney from '@/assets/images/projects/show-me-the-money.png'
 
+export interface ProjectLink {
+  href: string
+  host: string
+}
+
 export interface Project {
   slug: string
   name: string
-  href: string
-  host: string
+  links: ProjectLink[]
   kind: string
-  icon: StaticImageData
+  icon?: StaticImageData
   about: string
   // Shown after the kind in the project's meta line, e.g. 'in review'.
   status?: string
@@ -25,8 +29,9 @@ export const projects: Project[] = [
   {
     slug: 'marta-kei',
     name: 'marta_kei_',
-    href: 'https://martakei.com',
-    host: 'martakei.com',
+    links: [
+      { href: 'https://martakei.com', host: 'martakei.com' }
+    ],
     kind: 'site',
     icon: martakei,
     about:
@@ -35,8 +40,12 @@ export const projects: Project[] = [
   {
     slug: 'hangboard-buzzer',
     name: 'hangboard buzzer',
-    href: 'https://hangboard-buzzer.jnao.se',
-    host: 'hangboard-buzzer.jnao.se',
+    links: [
+      {
+        href: 'https://hangboard-buzzer.jnao.se',
+        host: 'hangboard-buzzer.jnao.se'
+      }
+    ],
     kind: 'iPhone app',
     icon: hangboardBuzzer,
     about:
@@ -45,8 +54,12 @@ export const projects: Project[] = [
   {
     slug: 'bakers-maths',
     name: 'bakers maths',
-    href: 'https://bakersmaths.com',
-    host: 'bakersmaths.com',
+    links: [
+      {
+        href: 'https://bakersmaths.com',
+        host: 'bakersmaths.com'
+      }
+    ],
     kind: 'web app',
     icon: bakersmaths,
     about:
@@ -55,11 +68,32 @@ export const projects: Project[] = [
   {
     slug: 'show-me-the-money',
     name: 'show me the money',
-    href: 'https://showmethemoney.jnao.se',
-    host: 'showmethemoney.jnao.se',
+    links: [
+      {
+        href: 'https://showmethemoney.jnao.se',
+        host: 'showmethemoney.jnao.se'
+      }
+    ],
     kind: 'Mac app',
     icon: showMeTheMoney,
     about:
       'Personal finance that never leaves your Mac. Import your bank exports, let patterns categorise every transaction, plan with envelopes, and trace where the money goes on visual dashboards: no account, no sync, no tracking. You can download it from the Apple App Store.'
+  },
+  {
+    slug: 'climbing-are',
+    name: 'åre climbing',
+    links: [
+      {
+        href: 'https://väjaberget.se',
+        host: 'väjaberget.se'
+      },
+      {
+        href: 'https://lillahelvetet.jnao.se',
+        host: 'lillahelvetet.jnao.se'
+      }
+    ],
+    kind: 'sites',
+    about:
+      'Guides to two crags in the Åre region of Sweden, Väjaberget and Lilla Helvetet. Each site has a short introduction to the crag, an interactive topo, and a description of how to find your way there.'
   }
 ]
