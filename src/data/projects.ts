@@ -84,8 +84,8 @@ export const projects: Project[] = [
     name: 'åre climbing',
     links: [
       {
-        href: 'https://väjaberget.se',
-        host: 'väjaberget.se'
+        href: 'https://välaberget.se',
+        host: 'välaberget.se'
       },
       {
         href: 'https://lillahelvetet.jnao.se',
