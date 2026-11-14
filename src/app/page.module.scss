@@ -21,7 +21,7 @@
   justify-content: flex-start;
   align-items: flex-end;
   bottom: 0;
-  padding: max(env(safe-area-inset-top), 1rem)
+  padding: max(env(safe-area-inset-top), var(--logo-block))
     max(env(safe-area-inset-right), 1rem)
     max(env(safe-area-inset-bottom), 1rem)
     max(env(safe-area-inset-left), 1rem);
@@ -46,7 +46,7 @@
   top: 1rem;
   left: max(max(env(safe-area-inset-left)), 1rem);
   mix-blend-mode: difference;
-  max-width: 200px;
+  max-width: var(--logo-width);
 }
 
 .logo {

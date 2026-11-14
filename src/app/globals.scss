@@ -8,6 +8,13 @@
   // Read by TopCover (height) and JnaoLogo (coarse-pointer
   // stage offset).
   --top-cover-height: 5px;
+  // Header logo width (page.module.scss .title) and the
+  // block it covers at the top of every segment; 682/998 is
+  // Logo's viewBox ratio, 1rem the .title sticky top.
+  --logo-width: min(200px, 28vh);
+  --logo-block: calc(
+    1.5rem + var(--logo-width) * 682 / 998
+  );
 }
 
 @media (prefers-color-scheme: dark) {
