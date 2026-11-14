@@ -40,11 +40,16 @@ const LEAVE_SPEED = 1.4
 
 // Share of the drawn photo, from its bottom edge, that fades to black.
 const FADE = 0.22
+// Viewport height, from the bottom, kept below the photo's dark row:
+// room for a /work project's text (work.module.scss .text).
+const RESERVE_REM = 20
 
 interface Art {
   image: StaticImageData
   // Share of the drawn photo's height pushed above the viewport.
   offset: number
+  // Share of the photo's height from which its left half is solid black.
+  dark: number
 }
 
 interface Dot {
@@ -55,20 +60,33 @@ interface Dot {
   ink: number
 }
 
-const LANDSCAPE: Art = { image: forest, offset: 0 }
-const PORTRAIT: Art = { image: fireweed, offset: 0.375 }
+const LANDSCAPE: Art = {
+  image: forest,
+  offset: 0,
+  dark: 0.84
+}
+const PORTRAIT: Art = {
+  image: fireweed,
+  offset: 0.375,
+  dark: 0.94
+}
 
 // CSS variables for `.still`, which draws the settled colour photo
 // the way paintArt does, before the canvas can.
-const artVars = (name: string, { image, offset }: Art) => ({
+const artVars = (
+  name: string,
+  { image, offset, dark }: Art
+) => ({
   [`--${name}`]: `url(${image.src})`,
   [`--${name}-ratio`]: image.height / image.width,
-  [`--${name}-offset`]: offset
+  [`--${name}-offset`]: offset,
+  [`--${name}-dark`]: dark
 })
 const STILL_VARS = {
   ...artVars('landscape', LANDSCAPE),
   ...artVars('portrait', PORTRAIT),
-  '--fade': FADE
+  '--fade': FADE,
+  '--reserve': `${RESERVE_REM}rem`
 } as React.CSSProperties
 
 export const isColourPath = (pathname: string) =>
@@ -90,6 +108,18 @@ function loadImage(src: string) {
   )
 }
 
+// The photo's top edge: shifted up by its offset, and further when the
+// viewport is too short to keep RESERVE_REM below its dark row.
+function artTop(art: Art, dh: number, h: number) {
+  const rem = parseFloat(
+    getComputedStyle(document.documentElement).fontSize
+  )
+  return Math.min(
+    -art.offset * dh,
+    h - RESERVE_REM * rem - art.dark * dh
+  )
+}
+
 // The colour photo scaled to the viewport width, then black below it.
 function paintArt(
   img: HTMLImageElement,
@@ -107,7 +137,7 @@ function paintArt(
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, w, h)
   const dh = (w * img.naturalHeight) / img.naturalWidth
-  const top = -art.offset * dh
+  const top = artTop(art, dh, h)
   const bottom = top + dh
   ctx.drawImage(img, 0, top, w, dh)
   const fadeTop = bottom - dh * FADE

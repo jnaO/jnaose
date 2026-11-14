@@ -29,7 +29,7 @@ Two routes sharing one scroll-snap scene: one line of copy (or one project) per 
 
 ## Backdrop halftone (`src/components/Backdrop/Backdrop.tsx`)
 - Colour = `requested ?? isColourPath(pathname)`; `requestColour` lets the click start the reveal before the route changes, reset to `null` on every pathname change.
-- Colour photo: `forest.jpg` when landscape, `fireweed.jpg` (shifted up by `offset`) when portrait; scaled to viewport width, bottom `FADE` share faded into black.
+- Colour photo: `forest.jpg` when landscape, `fireweed.jpg` (shifted up by `offset`) when portrait; scaled to viewport width, bottom `FADE` share faded into black. Top edge = `artTop`: shifted up by `offset`, and further on short viewports so the photo's `dark` row (where its left half turns solid black) stays at least `RESERVE_REM` above the viewport bottom, keeping /work project text on black; `.still` repeats the same `min()` in CSS.
 - Reveal: rotated (`SCREEN_ANGLE`) dot lattice, spacing `SCREEN_MIN–MAX` px, dot radius ∝ √luminance. Two sweeps from the top-left: print, then merge (`MERGE_DELAY_MS` = half a sweep) until dots close into the photo. Leaving runs the same timeline backwards at `LEAVE_SPEED`.
 - The canvas redraws only when colour changes; resize does not repaint.
 
