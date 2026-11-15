@@ -50,6 +50,8 @@ src/
   assets/images/        bg.jpg (mono), forest.jpg / fireweed.jpg (colour), projects/*.png icons
 ```
 
+`prototypes/` holds standalone design prototypes, outside the Next build and excluded from biome. `prototypes/print-raster/index.html` is a WebGL newspaper-print raster tuner (one ink or CMYK plates, wear, reveal, scroll fade) over the site photos; run `prototypes/print-raster/build-images.sh` once (writes the gitignored `images.js`), then open `index.html` straight from disk.
+
 Agent discovery (Link header, llms.txt, markdown negotiation, Content-Signal), including how to repeat it on other sites: [.agent-docs/ai-discoverability.md](.agent-docs/ai-discoverability.md).
 
 Tests: `pnpm test` (Vitest, Node environment, `src/**/*.test.ts`; pure logic only, no DOM). Lint: `pnpm lint` (`biome check`: lint, format, import order; includes the `next` and `react` rule domains). Biome does not type-check; `pnpm exec tsc --noEmit` does.

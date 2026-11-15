@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Print Raster Prototype</title>
+<style>
+  :root {
+    --panel-bg: rgba(18, 18, 20, 0.92);
+    --panel-fg: #eee;
+    --panel-dim: #999;
+    --accent: orange;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #000; font-family: -apple-system, system-ui, sans-serif; }
+  canvas#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+  /* Stand-ins for the site's blended UI, to judge the print under `difference`. */
+  .site { position: fixed; inset: 0; pointer-events: none; }
+  .site.off { display: none; }
+  .site .text {
+    position: absolute; left: 1rem; bottom: 1rem; max-width: 30rem;
+    color: orange; mix-blend-mode: difference; font-size: 1.125rem; line-height: 1.5;
+  }
+  .site .logo {
+    position: absolute; left: 1rem; top: 1rem; font-size: 3rem; font-weight: 700;
+    color: #fff; mix-blend-mode: difference; letter-spacing: -0.02em;
+  }
+  .site .ruler {
+    position: absolute; right: 1.5rem; top: 50%; width: 60px; height: 220px;
+    color: #fff; mix-blend-mode: difference; border-right: 1px solid currentColor;
+    background: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 11px) right top / 8px 100% no-repeat;
+  }
+  .site .ruler span { position: absolute; right: 18px; font-variant-numeric: tabular-nums; }
+
+  #panel {
+    position: fixed; top: 8px; right: 8px; width: 300px; max-height: calc(100vh - 16px);
+    overflow: auto; background: var(--panel-bg); color: var(--panel-fg);
+    font-size: 12px; border-radius: 8px; padding: 10px 12px; z-index: 10;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  #panel.hidden { display: none; }
+  #panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--panel-dim); margin: 12px 0 4px; font-weight: 600; }
+  #panel h2:first-child { margin-top: 0; }
+  .row { display: grid; grid-template-columns: 92px 1fr 40px; align-items: center; gap: 6px; margin: 3px 0; }
+  .row label { color: #ccc; }
+  .row output { text-align: right; color: var(--panel-dim); font-variant-numeric: tabular-nums; }
+  .row input[type=range] { width: 100%; accent-color: var(--accent); }
+  .row input[type=color] { width: 100%; height: 20px; border: 0; padding: 0; background: none; }
+  .row select { width: 100%; grid-column: span 2; }
+  .row.check input { justify-self: start; accent-color: var(--accent); }
+  .buttons { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+  .buttons button {
+    flex: 1 1 auto; background: #2a2a2e; color: #eee; border: 1px solid #444;
+    border-radius: 5px; padding: 5px 6px; font-size: 12px; cursor: pointer;
+  }
+  .buttons button:hover { background: #3a3a40; }
+  .buttons button.on { border-color: var(--accent); color: var(--accent); }
+  #stats { color: var(--panel-dim); font-variant-numeric: tabular-nums; margin-top: 6px; min-height: 1.2em; }
+  #hint { position: fixed; left: 8px; top: 8px; color: #fff; mix-blend-mode: difference; font-size: 12px; z-index: 9; }
+  @media (max-width: 40rem) { #panel { width: calc(100vw - 16px); max-height: 50vh; top: auto; bottom: 8px; } }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="track" style="height:500vh"></div>
+<div class="site" id="site">
+  <div class="logo">jnaO</div>
+  <div class="ruler"><span style="top:-9px">00</span><span style="top:101px">01</span><span style="top:211px">02</span></div>
+  <p class="text">I build sites and apps, see the work.<br>For contact you can email me.</p>
+</div>
+<div id="hint">H hides the panel · Space replays · S scrubs · scroll the page to fade</div>
+<div id="panel"></div>
+<script src="images.js"></script>
+<script>
+'use strict'
+
+// ---------- settings ----------
+const PRESETS = {
+  'Your pick (CMYK)': {
+    mode: 1, ink: '#161616', paper: '#efeadf', paperOpacity: 1, cell: 3.1, angle: 45,
+    lo: 0.02, hi: 0.72, gamma: 1.12, gain: 0.08, soft: 1.2, rough: 0.35, roughScale: 1.4,
+    grain: 0.1, mottle: 0.04, specks: 0, misreg: 0.2, settle: 0,
+    sweepMs: 370, printMs: 460, mergeMs: 440
+  },
+  'Reference (navy)': {
+    mode: 0, ink: '#1c2756', paper: '#a7b4e4', paperOpacity: 1, cell: 3.2, angle: 45,
+    lo: 0.04, hi: 0.92, gamma: 1.1, gain: 0.12, soft: 1.2, rough: 0.35, roughScale: 1,
+    grain: 0.35, mottle: 0.35, specks: 0.35, misreg: 0, settle: 0
+  },
+  'Black on newsprint': {
+    mode: 0, ink: '#161616', paper: '#e8e2d4', paperOpacity: 1, cell: 3.6, angle: 45,
+    lo: 0.04, hi: 0.95, gamma: 1, gain: 0.15, soft: 1.2, rough: 0.3, roughScale: 1,
+    grain: 0.3, mottle: 0.25, specks: 0.25, misreg: 0, settle: 0
+  },
+  'CMYK newsprint': {
+    mode: 1, ink: '#161616', paper: '#efeadf', paperOpacity: 1, cell: 3.6, angle: 45,
+    lo: 0.02, hi: 0.98, gamma: 1, gain: 0.1, soft: 1.2, rough: 0.25, roughScale: 1,
+    grain: 0.25, mottle: 0.2, specks: 0.2, misreg: 0.6, settle: 0
+  },
+  'Ink only, no paper': {
+    mode: 0, ink: '#0b1030', paper: '#a7b4e4', paperOpacity: 0, cell: 3.4, angle: 45,
+    lo: 0.04, hi: 0.92, gamma: 1.1, gain: 0.12, soft: 1.2, rough: 0.35, roughScale: 1,
+    grain: 0, mottle: 0.3, specks: 0.2, misreg: 0, settle: 0
+  },
+  'Current site effect': {
+    mode: 2, ink: '#000000', paper: '#000000', paperOpacity: 0, cell: 5.5, angle: 45,
+    lo: 0, hi: 1, gamma: 1, gain: 0, soft: 0, rough: 0, roughScale: 1,
+    grain: 0, mottle: 0, specks: 0, misreg: 0, settle: 1
+  }
+}
+const TIMING = { sweepMs: 450, printMs: 160, mergeMs: 240, speed: 1 }
+const FADE = { fadeStyle: 0, fadeFrom: 0.5, fadeTo: 2 }
+const DEFAULTS = { ...TIMING, ...PRESETS['Your pick (CMYK)'], ...FADE, photo: 'auto', ui: 1 }
+
+const SPEC = [
+  ['h', 'Look'],
+  ['preset'],
+  ['mode', 'Mode', 'select', [['One ink on paper', 0], ['CMYK (4 plates)', 1], ['Current site (light dots)', 2]]],
+  ['photo', 'Photo', 'select', [['Auto (as site)', 'auto'], ['forest (landscape)', 'forest'], ['fireweed (portrait)', 'fireweed'], ['bg (mono)', 'bg']]],
+  ['ink', 'Ink', 'color'],
+  ['paper', 'Paper', 'color'],
+  ['paperOpacity', 'Paper opacity', 'range', 0, 1, 0.01],
+  ['h', 'Screen'],
+  ['cell', 'Screen px', 'range', 2, 10, 0.1],
+  ['angle', 'Angle °', 'range', 0, 90, 1],
+  ['soft', 'Tone blur', 'range', 0, 4, 0.1],
+  ['h', 'Tone'],
+  ['lo', 'Black point', 'range', 0, 0.5, 0.01],
+  ['hi', 'White point', 'range', 0.5, 1, 0.01],
+  ['gamma', 'Gamma', 'range', 0.4, 2.5, 0.01],
+  ['gain', 'Dot gain', 'range', 0, 0.5, 0.01],
+  ['h', 'Wear'],
+  ['rough', 'Rough edges', 'range', 0, 1, 0.01],
+  ['roughScale', 'Rough scale', 'range', 0.4, 3, 0.05],
+  ['grain', 'Paper grain', 'range', 0, 1, 0.01],
+  ['mottle', 'Ink mottle', 'range', 0, 1, 0.01],
+  ['specks', 'Dust specks', 'range', 0, 1, 0.01],
+  ['misreg', 'Misregister px', 'range', 0, 3, 0.05],
+  ['h', 'Reveal'],
+  ['settle', 'Merge to photo', 'check'],
+  ['sweepMs', 'Sweep ms', 'range', 100, 2000, 10],
+  ['printMs', 'Print ms', 'range', 40, 1500, 10],
+  ['mergeMs', 'Merge ms', 'range', 40, 1500, 10],
+  ['speed', 'Slow-mo ×', 'range', 1, 8, 0.5],
+  ['h', 'Scroll fade'],
+  ['fadeStyle', 'Style', 'select', [['Dissolve through screen', 0], ['Crossfade', 1], ['Refine (screen gets finer)', 2], ['Off', 3]]],
+  ['fadeFrom', 'Starts, screens', 'range', 0, 4, 0.05],
+  ['fadeTo', 'Ends, screens', 'range', 0.1, 4, 0.05],
+  ['ui', 'Site text overlay', 'check']
+]
+
+const STORE = 'print-raster-prototype'
+let S = { ...DEFAULTS }
+try { Object.assign(S, JSON.parse(localStorage.getItem(STORE) || '{}')) } catch {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)) } catch {} }
+
+// ---------- GL ----------
+const canvas = document.getElementById('gl')
+const gl = canvas.getContext('webgl2', { premultipliedAlpha: false, antialias: false })
+if (!gl) document.body.insertAdjacentHTML('beforeend', '<p style="color:#fff;padding:2rem">WebGL2 unavailable</p>')
+
+const VS = `#version 300 es
+in vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }`
+
+const FS = `#version 300 es
+precision highp float;
+out vec4 o;
+uniform vec2 uRes; uniform float uDpr;
+uniform sampler2D uPhoto, uMono;
+uniform vec4 uPhotoX, uMonoX;          // cover placement: offset.xy, size.zw (CSS px)
+uniform int uMode;
+uniform vec3 uInk, uPaper; uniform float uPaperOpacity;
+uniform float uCell, uAngle, uSoft;
+uniform float uLo, uHi, uGamma, uGain;
+uniform float uRough, uRoughScale, uGrain, uMottle, uSpecks, uMisreg;
+uniform float uTime, uSweep, uPrint, uMerge, uSettle;
+uniform float uFade; uniform int uFadeStyle;   // uFade: 0 printed .. 1 clean photo
+float gCell;
+
+const float PI = 3.14159265;
+
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
+}
+float e3(float t){ t = 1. - clamp(t, 0., 1.); return 1. - t * t * t; }
+float eio(float t){ t = clamp(t, 0., 1.); return t < .5 ? 4. * t * t * t : 1. - pow(-2. * t + 2., 3.) / 2.; }
+
+vec3 photoAt(vec2 p, float lod){ return textureLod(uPhoto, (p - uPhotoX.xy) / uPhotoX.zw, lod).rgb; }
+vec3 monoAt(vec2 p){ return texture(uMono, (p - uMonoX.xy) / uMonoX.zw).rgb; }
+
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+
+// Classic round-dot spot function: 0 at the cell centre, 1 at the corners.
+// Round dots in the highlights, a checkerboard at 50%, round holes in the shadows.
+float spot(vec2 p, float angle){
+  vec2 q = rot(angle) * p / gCell;
+  return .5 - .25 * (cos(2. * PI * q.x) + cos(2. * PI * q.y));
+}
+
+// Ink edge noise, in CSS px.
+float roughAt(vec2 p){
+  vec2 s = p / uRoughScale;
+  return (vnoise(s / .7) - .5) * .6 + (vnoise(s / 2.2) - .5) * .4;
+}
+
+// 0..1 ink coverage of a plate whose tone needs 'dark' ink.
+float plate(vec2 p, float angle, float dark){
+  float sp = spot(p, angle) + roughAt(p) * uRough * .5;
+  float w = max(fwidth(sp), 1e-4);
+  return clamp((dark - sp) / w + .5, 0., 1.) * step(.002, dark);
+}
+
+float toneDark(float lum){
+  float t = clamp((lum - uLo) / max(uHi - uLo, 1e-3), 0., 1.);
+  float d = 1. - pow(t, uGamma);
+  return clamp(d + uGain * 4. * d * (1. - d), 0., 1.);
+}
+
+float lumOf(vec3 c){ return dot(c, vec3(.2126, .7152, .0722)); }
+
+// The current site's look: light photo-coloured lattice dots, swelling into the photo.
+vec4 currentLook(vec2 p, float time){
+  vec2 c = uRes * .5; vec2 d = p - c; const float k = .70710678;
+  vec2 uv = vec2(d.x * k + d.y * k, -d.x * k + d.y * k) / uCell; vec2 base = floor(uv + .5);
+  float cov = 0.; float diag = length(uRes); float full = uCell * .72;
+  for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
+    vec2 g = (base + vec2(float(i), float(j))) * uCell;
+    vec2 ctr = c + vec2(g.x * k - g.y * k, g.x * k + g.y * k);
+    float t = time - length(ctr) / diag * uSweep; if (t <= 0.) continue;
+    float ink = sqrt(lumOf(photoAt(ctr, 3.))) * .62 * uCell;
+    float pr = e3(t / uPrint) * ink; float m = clamp((t - uSweep * .5) / uMerge, 0., 1.);
+    float r = pr + (full - pr) * eio(m); if (r < .3) continue;
+    cov = max(cov, clamp((r - distance(p, ctr)) * uDpr + .5, 0., 1.));
+  }
+  return vec4(photoAt(p, 0.), cov);
+}
+
+float specksAt(vec2 p, float seed){
+  vec2 cell = floor(p / 7.); float h = hash(cell + seed);
+  if (h > uSpecks * .25) return 0.;
+  vec2 ctr = (cell + vec2(hash(cell + seed + 3.1), hash(cell + seed + 7.7))) * 7.;
+  float r = .4 + hash(cell + seed + 1.3) * 1.2;
+  return clamp((r - distance(p, ctr)) * uDpr + .5, 0., 1.);
+}
+
+// Ink amounts per plate for one image: x,y,z = C,M,Y (or unused), w = K / the single ink.
+vec4 inkOf(vec3 c){
+  if (uMode == 0) return vec4(0., 0., 0., toneDark(lumOf(c)));
+  vec3 c3 = pow(clamp((c - uLo) / max(uHi - uLo, 1e-3), 0., 1.), vec3(uGamma));
+  float k = 1. - max(max(c3.r, c3.g), c3.b);
+  vec3 cmy = (1. - c3 - k) / max(1. - k, 1e-3);
+  vec4 v = vec4(cmy, k);
+  return clamp(v + uGain * 4. * v * (1. - v), 0., 1.);
+}
+
+void main(){
+  vec2 p = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
+  // Refine: the screen shrinks toward the device pixel as the fade runs.
+  gCell = uFadeStyle == 2 ? mix(uCell, max(.5 / uDpr, .25), pow(uFade, .6)) : uCell;
+  float t = uTime - length(p) / length(uRes) * uSweep;   // local time at this pixel
+
+  if (uMode == 2) {
+    vec3 base = monoAt(p);
+    vec4 c = currentLook(p, uTime);
+    o = vec4(t <= 0. ? base : mix(base, c.rgb, c.a), 1.);
+    return;
+  }
+
+  // 0 = home's mono photo, 1 = the colour photo; the sweep re-sizes the same dots.
+  float r = t <= 0. ? 0. : e3(t / uPrint);
+  vec3 monoClean = monoAt(p);
+  vec3 photoClean = photoAt(p, 0.);
+  vec2 mt = (p - uMonoX.xy) / uMonoX.zw;
+  vec4 ink = mix(inkOf(textureLod(uMono, mt, uSoft).rgb), inkOf(photoAt(p, uSoft)), r);
+  float mottle = 1. - uMottle * .55 * (vnoise(p / 38.) * .7 + vnoise(p / 9.) * .3);
+
+  float grain = (vnoise(p / .8) * .55 + vnoise(p / 5.) * .3 + vnoise(p / 40.) * .15 - .5) * uGrain * .35;
+  vec3 paper = clamp(uPaper * (1. + grain), 0., 1.);
+  vec3 clean = mix(monoClean, photoClean, r);
+  vec3 col = mix(clean, paper, uPaperOpacity);
+
+  if (uMode == 0) {
+    col = mix(col, uInk, plate(p, radians(uAngle), ink.w) * mottle);
+  } else {
+    // CMYK: subtractive plates at the classic screen angles, each nudged off register.
+    vec2 m = vec2(uMisreg);
+    float cc = plate(p + m * vec2(.7, -.3), radians(15.), ink.x) * mottle;
+    float mm = plate(p + m * vec2(-.4, .6), radians(75.), ink.y) * mottle;
+    float yy = plate(p + m * vec2(.2, .5), radians(0.), ink.z) * mottle;
+    float kk = plate(p, radians(45.), ink.w) * mottle;
+    col *= mix(vec3(1.), vec3(0., .66, .93), cc);
+    col *= mix(vec3(1.), vec3(.92, .08, .55), mm);
+    col *= mix(vec3(1.), vec3(1., .93, .05), yy);
+    col = mix(col, uInk, kk);
+  }
+
+  // Dust: paper-coloured flecks in the ink, ink-coloured specks on the paper.
+  col = mix(col, paper, specksAt(p, 11.) * uPaperOpacity);
+  col = mix(col, uInk, specksAt(p + 3.5, 29.) * .8);
+
+  if (uSettle > .5) {
+    // Merge: the clean colour photo floods in through the same screen after the sweep.
+    float m = t <= 0. ? 0. : eio((t - uSweep * .5) / uMerge);
+    col = mix(col, photoClean, max(plate(p, radians(uAngle) + .3, m * 1.05), step(1., m)));
+  }
+  // Scroll fade: back to the full-resolution image of the current page.
+  if (uFadeStyle == 0) col = mix(col, clean, max(plate(p, radians(uAngle) + .3, uFade * 1.05), step(1., uFade)));
+  else if (uFadeStyle == 1) col = mix(col, clean, uFade);
+  else if (uFadeStyle == 2) col = mix(col, clean, smoothstep(.55, 1., uFade));
+  o = vec4(col, 1.);
+}`
+
+function shader(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s)
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s))
+  return s
+}
+const prog = gl.createProgram()
+gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS))
+gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS))
+gl.linkProgram(prog)
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog))
+gl.useProgram(prog)
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW)
+const aLoc = gl.getAttribLocation(prog, 'a')
+gl.enableVertexAttribArray(aLoc)
+gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0)
+const U = {}
+for (let i = 0; i < gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS); i++) {
+  const n = gl.getActiveUniform(prog, i).name
+  U[n] = gl.getUniformLocation(prog, n)
+}
+
+const images = {}
+function texture(img, unit) {
+  const t = gl.createTexture()
+  gl.activeTexture(gl.TEXTURE0 + unit)
+  gl.bindTexture(gl.TEXTURE_2D, t)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
+  gl.generateMipmap(gl.TEXTURE_2D)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  return t
+}
+const textures = {}
+
+// CSS `background-size: cover; background-position: center left` placement.
+function cover(img, W, H) {
+  const s = Math.max(W / img.naturalWidth, H / img.naturalHeight)
+  const w = img.naturalWidth * s, h = img.naturalHeight * s
+  return [0, (H - h) / 2, w, h]
+}
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+
+// ---------- timeline ----------
+const total = () => (S.settle ? S.sweepMs * 1.5 + S.mergeMs : S.sweepMs + S.printMs)
+let time = Infinity
+let anim = null
+let scrubbing = false
+const frameGaps = []
+
+function play(direction = 1) {
+  const dur = total() * S.speed
+  const t0 = performance.now()
+  frameGaps.length = 0
+  let last = t0
+  anim = { direction }
+  const tick = (now) => {
+    if (!anim) return
+    frameGaps.push(now - last); last = now
+    const p = Math.min((now - t0) / dur, 1)
+    time = (direction > 0 ? p : 1 - p) * total()
+    draw()
+    if (p < 1) requestAnimationFrame(tick)
+    else { anim = null; reportFps() }
+  }
+  requestAnimationFrame(tick)
+}
+function reportFps() {
+  const g = frameGaps.slice(1)
+  if (!g.length) return
+  const avg = g.reduce((a, b) => a + b, 0) / g.length
+  stats.textContent = `last reveal: ${g.length} frames, avg ${avg.toFixed(1)}ms (${(1000 / avg).toFixed(0)} fps), worst ${Math.max(...g).toFixed(1)}ms`
+}
+
+// ---------- scroll fade ----------
+// 0 at the top, 1 once the page has scrolled fadeTo screens.
+function fadeAmount() {
+  const y = scrollY / innerHeight
+  const a = +S.fadeFrom, b = Math.max(+S.fadeTo, a + 0.01)
+  const t = Math.min(Math.max((y - a) / (b - a), 0), 1)
+  return t * t * (3 - 2 * t)
+}
+addEventListener('scroll', () => {
+  if (!anim) draw()
+  stats.textContent = `scrolled ${(scrollY / innerHeight).toFixed(2)} screens · fade ${(fadeAmount() * 100).toFixed(0)}%`
+}, { passive: true })
+
+// ---------- draw ----------
+function resize() {
+  const dpr = window.devicePixelRatio || 1
+  const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr)
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h }
+  gl.viewport(0, 0, w, h)
+}
+function photoKey() {
+  if (S.photo !== 'auto') return S.photo
+  return innerWidth >= innerHeight ? 'forest' : 'fireweed'
+}
+function draw() {
+  if (!images.bg) return
+  resize()
+  const W = innerWidth, H = innerHeight
+  const key = photoKey()
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, textures[key])
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, textures.bg)
+  gl.uniform1i(U.uPhoto, 0); gl.uniform1i(U.uMono, 1)
+  gl.uniform4fv(U.uPhotoX, cover(images[key], W, H))
+  gl.uniform4fv(U.uMonoX, cover(images.bg, W, H))
+  gl.uniform2f(U.uRes, W, H)
+  gl.uniform1f(U.uDpr, window.devicePixelRatio || 1)
+  gl.uniform1i(U.uMode, +S.mode)
+  gl.uniform3fv(U.uInk, hex(S.ink)); gl.uniform3fv(U.uPaper, hex(S.paper))
+  const f = (u, v) => gl.uniform1f(U[u], +v)
+  f('uPaperOpacity', S.paperOpacity); f('uCell', S.cell); f('uAngle', S.angle); f('uSoft', S.soft)
+  f('uLo', S.lo); f('uHi', S.hi); f('uGamma', S.gamma); f('uGain', S.gain)
+  f('uRough', S.rough); f('uRoughScale', S.roughScale); f('uGrain', S.grain); f('uMottle', S.mottle)
+  f('uSpecks', S.specks); f('uMisreg', S.misreg)
+  f('uTime', Math.min(time, total() + 1)); f('uSweep', S.sweepMs); f('uPrint', S.printMs)
+  f('uMerge', S.mergeMs); f('uSettle', S.settle ? 1 : 0)
+  gl.uniform1i(U.uFadeStyle, +S.fadeStyle); f('uFade', fadeAmount())
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+  document.getElementById('site').classList.toggle('off', !S.ui)
+}
+
+// ---------- panel ----------
+const panel = document.getElementById('panel')
+const inputs = {}
+function build() {
+  for (const [key, label, type, a, b, step] of SPEC) {
+    if (key === 'h') { panel.insertAdjacentHTML('beforeend', `<h2>${label}</h2>`); continue }
+    if (key === 'preset') {
+      const div = document.createElement('div'); div.className = 'buttons'
+      for (const name of Object.keys(PRESETS)) {
+        const btn = document.createElement('button'); btn.textContent = name
+        btn.onclick = () => { Object.assign(S, PRESETS[name]); sync(); save(); time = Infinity; play() }
+        div.appendChild(btn)
+      }
+      panel.appendChild(div); continue
+    }
+    const row = document.createElement('div'); row.className = 'row' + (type === 'check' ? ' check' : '')
+    row.innerHTML = `<label>${label}</label>`
+    let el
+    if (type === 'select') {
+      el = document.createElement('select')
+      for (const [t, v] of a) el.insertAdjacentHTML('beforeend', `<option value="${v}">${t}</option>`)
+    } else {
+      el = document.createElement('input'); el.type = type === 'check' ? 'checkbox' : type
+      if (type === 'range') { el.min = a; el.max = b; el.step = step }
+    }
+    const out = document.createElement('output')
+    el.oninput = () => {
+      S[key] = type === 'check' ? (el.checked ? 1 : 0) : type === 'range' ? +el.value : el.value
+      if (key === 'mode' || key === 'fadeStyle') S[key] = +el.value
+      out.textContent = type === 'range' ? (+el.value).toString() : ''
+      save(); draw()
+    }
+    row.appendChild(el); if (type !== 'select') row.appendChild(out)
+    panel.appendChild(row)
+    inputs[key] = { el, out, type }
+  }
+  const btns = document.createElement('div'); btns.className = 'buttons'
+  const add = (text, fn) => { const b = document.createElement('button'); b.textContent = text; b.onclick = fn; btns.appendChild(b); return b }
+  add('▶ Reveal', () => play(1))
+  add('◀ Leave', () => play(-1))
+  add('Scrub', () => { scrubbing = !scrubbing; scrubBtn.classList.toggle('on', scrubbing) })
+  const scrubBtn = btns.lastChild
+  add('Copy settings', async () => {
+    const txt = JSON.stringify(S, null, 2)
+    try { await navigator.clipboard.writeText(txt); stats.textContent = 'Settings copied to clipboard' }
+    catch { prompt('Copy these settings:', JSON.stringify(S)) }
+  })
+  add('Reset', () => { S = { ...DEFAULTS }; sync(); save(); play() })
+  panel.prepend(btns)
+  panel.insertAdjacentHTML('beforeend', '<div id="stats"></div>')
+}
+function sync() {
+  for (const [key, { el, out, type }] of Object.entries(inputs)) {
+    if (type === 'check') el.checked = !!S[key]
+    else el.value = S[key]
+    if (out) out.textContent = type === 'range' ? String(S[key]) : ''
+  }
+}
+build(); sync()
+const stats = document.getElementById('stats')
+
+// Scrub: with Scrub on, the pointer's x across the window sets the reveal time.
+addEventListener('pointermove', (e) => {
+  if (!scrubbing || e.target.closest('#panel')) return
+  anim = null
+  time = (e.clientX / innerWidth) * total()
+  stats.textContent = `t = ${time.toFixed(0)} / ${total().toFixed(0)}ms`
+  draw()
+})
+addEventListener('keydown', (e) => {
+  if (e.target.matches('input, select')) return
+  if (e.key === 'h' || e.key === 'H') panel.classList.toggle('hidden')
+  if (e.key === ' ') { e.preventDefault(); play(1) }
+  if (e.key === 's' || e.key === 'S') { scrubbing = !scrubbing; panel.querySelectorAll('.buttons button').forEach((b) => b.textContent === 'Scrub' && b.classList.toggle('on', scrubbing)) }
+})
+addEventListener('resize', draw)
+
+// ---------- load ----------
+Promise.all(Object.entries(window.IMAGES).map(([k, src]) => new Promise((res, rej) => {
+  const img = new Image(); img.onload = () => res([k, img]); img.onerror = rej; img.src = src
+}))).then((list) => {
+  list.forEach(([k, img], i) => { images[k] = img; textures[k] = texture(img, i) })
+  time = 0; draw(); play(1)
+}).catch((e) => { stats.textContent = 'Image load failed: ' + e })
+</script>
+</body>
+</html>
