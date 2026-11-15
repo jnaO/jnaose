@@ -1,5 +1,8 @@
 // Every page's scroll-snap <main> carries this id.
 export const SCROLLER_ID = 'scroller'
+// JnaoLogo's footer snap marker, where the logo rests; the Ruler's
+// last row.
+export const LOGO_REST_ID = 'jnao'
 // Global class for fixed/sticky UI that fades out during the footer
 // finale; goes on the element that itself carries the blend mode.
 export const UI_CHROME = 'ui-chrome'

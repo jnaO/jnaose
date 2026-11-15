@@ -2,6 +2,7 @@ import bg from '@/assets/images/bg.jpg'
 import DMBLogo from '@/components/DMBLogo/DMBLogo'
 import Eyes from '@/components/Eyes/Eyes'
 import GoksoyraLogo from '@/components/GoksoyraLogo/GoksoyraLogo'
+import Ruler from '@/components/Ruler/Ruler'
 import WorkLink from '@/components/WorkLink/WorkLink'
 import {
   CONTACT_EMAIL,
@@ -19,10 +20,13 @@ export const metadata = pageMetadata({
   image: bg
 })
 
+// Ids of the home segments, top to bottom; the Ruler's rows.
+const SECTIONS = ['hello', 'sites', 'music', 'listen']
+
 export default function Home() {
   return (
     <>
-      <section className={styles.segment}>
+      <section id={SECTIONS[0]} className={styles.segment}>
         <p className={styles.paragraph}>
           I&apos;m a web developer ( <Eyes /> ).
           <br />
@@ -36,18 +40,18 @@ export default function Home() {
           me.
         </p>
       </section>
-      <section className={styles.segment}>
+      <section id={SECTIONS[1]} className={styles.segment}>
         <p className={styles.paragraph}>
           I build sites and apps, see the{' '}
           <WorkLink className={styles.link}>work</WorkLink>.
         </p>
       </section>
-      <section className={styles.segment}>
+      <section id={SECTIONS[2]} className={styles.segment}>
         <p className={styles.paragraph}>
           I also make music.
         </p>
       </section>
-      <section className={styles.segment}>
+      <section id={SECTIONS[3]} className={styles.segment}>
         <ul className={styles.list}>
           <li className={styles.listItem}>
             <a
@@ -67,6 +71,10 @@ export default function Home() {
           </li>
         </ul>
       </section>
+      <Ruler
+        label="Sections"
+        items={SECTIONS.map((id) => ({ id }))}
+      />
     </>
   )
 }

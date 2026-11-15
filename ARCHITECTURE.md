@@ -5,12 +5,12 @@ Next.js App Router, SCSS modules, anime.js v4, two routes (`/`, `/work`) sharing
 ```
 src/
   app/
-    layout.tsx          THE shared scene: Backdrop, TopCover, <main> scroller, top padder + sticky Logo, {children}, footer JnaoLogo, SiteMenu, HistoryScenes
-    page.tsx            home segments only
-    work/page.tsx       one snap segment per `projects` entry + ProjectNav
+    layout.tsx          THE shared scene: Backdrop, TopCover, MenuWindow, <main> scroller, top padder + sticky Logo, {children}, footer JnaoLogo, SiteMenu, HistoryScenes, RotateNotice; ART_RATIOS inline on <html>
+    page.tsx            home segments only, ids from its local SECTIONS list + a numbers-only Ruler
+    work/page.tsx       one snap segment per `projects` entry (id = slug) + a Ruler with project names
     work/work.module.scss  project segment, icon, text, scroll-driven enter fade
-    page.module.scss    scroller, .segment, .padder, .title, .footer, .link/.listLink/.navItem
-    globals.scss        colour tokens, reset
+    page.module.scss    scroller, .segment, .padder, .title, .footer, .link/.listLink
+    globals.scss        colour + layout tokens, reset
     icons.ts            favicon metadata → public/favicons/
     pageMetadata.ts     THE per-page metadata builder (title, description, canonical, full openGraph); every page's `metadata` goes through it
     sitemap.ts          lists every route; add new routes to PATHS
@@ -21,22 +21,27 @@ src/
   data/projects.ts      THE project list for /work (name, links, kind, optional icon, about)
   data/music.ts         THE music links (name, href)
   lib/
-    backdropRequest.ts  store letting a click switch the Backdrop before the route changes
+    backdropRequest.ts  store letting a click switch the Backdrop before the route changes; isColourPath; useSceneColour() = THE scene colour (request ?? pathname)
+    backdropFrame.ts    THE halftone clock: plain publish/subscribe/get store of the Backdrop's frame ({ art, dots, spacing, w, h, time }); never React state
+    affine.ts           2D affine matrices ([a,b,c,d,e,f]): apply, multiply, parseMatrix, matrixAttr
+    svgArt.ts           SvgArt type ({ viewBox, transform, paths }) for swappable artwork modules + aspect/viewBoxOf
     siteSummary.ts      THE markdown site summary for agents, built from data/projects.ts and data/music.ts
   hooks/
-    useSceneLink.ts     THE page-change routine (startScene) + click hook
+    useSceneLink.ts     THE page-change routine (startScene: swap after both the scroll to top and RULER.outMs) + click hook
     useAnimatedLogo.ts  THE stroke-pulse animation for logo SVGs
     useFinaleBlur.ts    true while <html>'s --finale-blur (footer finale) is above 0
   components/
-    Backdrop/           fixed mono photo + canvas halftone reveal of the colour photo on /work
+    Backdrop/           fixed mono photo + canvas halftone reveal of the colour photo on /work; halftone.ts = THE halftone code (constants, Art, pickArt, paintArt, buildDots, drawFrame)
     TopCover/           invisible fixed black top strip (opacity 0, --top-cover-height tall) that iOS Safari samples to keep its status bar black
-    SiteMenu/           fixed top-right home/work column
+    SiteMenu/           fixed top-right lettered spine (ink layer): outlined home/work words read bottom→top, wipe carriers for MenuWindow; words.ts = the words' SvgArt, spine.ts = rotation + wordMatrix (shared with MenuWindow)
     HistoryScenes/      runs browser back/forward through startScene
+    MenuWindow/         THE window layer of the menus: one fixed rail <canvas> (normal blend) painting the other page's photo through every [data-window] carrier, halftone mirrored off backdropFrame; geometry.ts = cover/snapshot maths + colourLayer
+    RotateNotice/       full-screen "rotate your phone" notice on phone-sized landscape touch screens; hides every <body> child without ROTATE_KEEP
     ExternalIcon/       inline box-and-arrow SVG after external link text; currentColor
-    ProjectNav/         fixed project list on /work; current = project filling >50% of the scroller
+    Ruler/              fixed segment ruler (ink layer), one per page, props { label, items: { id, name? }[] }, wrapped in a built-in `00` row (top of the scroller) and an end row (footer logo rest, `LOGO_REST_ID`): scale, long ticks, numbers (+ names ≥48rem), hollow needle; current.ts = THE >50%-of-the-scroller rule; timing.ts = THE RULER choreography constants (startScene reads RULER.outMs); needle.ts = the needle triangle points
     WorkLink/           inline link to /work using the scene routine
     SvgPathWrapper/     THE <g> wrapper paired with useAnimatedLogo
-    Logo/               sticky header logo (draggable)
+    Logo/               sticky header logo (draggable); art.ts = its SvgArt
     JnaoLogo/           footer logo: one <svg> per shard (shards.ts); finale.ts = explode/re-form timeline, orbit-to-reverse leave + FINALE tuning constants; orbit.ts = idle orbit controller + ORBIT tuning constants
     Eyes/               blinking inline glyph in copy
     GoksoyraLogo/       music link logo
@@ -47,4 +52,4 @@ src/
 
 Agent discovery (Link header, llms.txt, markdown negotiation, Content-Signal), including how to repeat it on other sites: [.agent-docs/ai-discoverability.md](.agent-docs/ai-discoverability.md).
 
-Lint: `pnpm lint` (`biome check`: lint, format, import order; includes the `next` and `react` rule domains). Biome does not type-check; `pnpm exec tsc --noEmit` does.
+Tests: `pnpm test` (Vitest, Node environment, `src/**/*.test.ts`; pure logic only, no DOM). Lint: `pnpm lint` (`biome check`: lint, format, import order; includes the `next` and `react` rule domains). Biome does not type-check; `pnpm exec tsc --noEmit` does.

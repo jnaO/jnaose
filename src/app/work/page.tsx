@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 import forest from '@/assets/images/forest.jpg'
 import ExternalIcon from '@/components/ExternalIcon/ExternalIcon'
-import ProjectNav from '@/components/ProjectNav/ProjectNav'
+import Ruler from '@/components/Ruler/Ruler'
 import { SITE_NAME } from '@/constants'
 import { projectNumber, projects } from '@/data/projects'
 
@@ -77,7 +77,13 @@ export default function Work() {
           </div>
         </section>
       ))}
-      <ProjectNav projects={projects} />
+      <Ruler
+        label="Projects"
+        items={projects.map(({ slug, name }) => ({
+          id: slug,
+          name
+        }))}
+      />
     </>
   )
 }

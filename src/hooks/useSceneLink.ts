@@ -2,31 +2,44 @@ import { usePathname, useRouter } from 'next/navigation'
 import type React from 'react'
 import { useCallback } from 'react'
 
-import { isColourPath } from '@/components/Backdrop/Backdrop'
+import { RULER } from '@/components/Ruler/timing'
 import { SCROLLER_ID } from '@/constants'
-import { requestColour } from '@/lib/backdropRequest'
+import {
+  isColourPath,
+  requestColour
+} from '@/lib/backdropRequest'
 
 const SCROLL_FALLBACK_MS = 1000
 
 // Every page shares the layout's scroller, padder and sticky logo, so
-// changing page is: start the backdrop, scroll back to the top, then
-// swap the page below the logo.
+// changing page is: start the backdrop (the ruler's OUT starts with
+// it), scroll back to the top, then swap the page below the logo once
+// both the scroll and the ruler's OUT have finished.
 export function startScene(href: string, swap: () => void) {
   requestColour(isColourPath(href))
   const main = document.getElementById(SCROLLER_ID)
-  if (!main || main.scrollTop < 1) {
-    swap()
-    return
-  }
-
+  let scrolled = !main || main.scrollTop < 1
+  let held = false
   let done = false
-  const once = () => {
-    if (done) return
+  const maybeSwap = () => {
+    if (done || !scrolled || !held) return
     done = true
     swap()
   }
-  main.addEventListener('scrollend', once, { once: true })
-  window.setTimeout(once, SCROLL_FALLBACK_MS)
+  window.setTimeout(() => {
+    held = true
+    maybeSwap()
+  }, RULER.outMs)
+  if (!main || scrolled) return
+
+  const onScrolled = () => {
+    scrolled = true
+    maybeSwap()
+  }
+  main.addEventListener('scrollend', onScrolled, {
+    once: true
+  })
+  window.setTimeout(onScrolled, SCROLL_FALLBACK_MS)
   main.scrollTo({ top: 0, behavior: 'smooth' })
 }
 

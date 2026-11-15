@@ -1,3 +1,4 @@
+import { usePathname } from 'next/navigation'
 import { useSyncExternalStore } from 'react'
 
 // Lets a click switch the Backdrop before the route changes. `null`
@@ -24,3 +25,22 @@ export const useRequestedColour = () =>
     () => requested,
     () => null
   )
+
+// Pages whose Backdrop shows the colour photo.
+export const isColourPath = (pathname: string) =>
+  pathname.startsWith('/work')
+
+// The scene's colour as the Backdrop shows it: a click's request
+// leads, the pathname follows once the route lands.
+export function useSceneColour() {
+  const pathname = usePathname()
+  const requested = useRequestedColour()
+  return requested ?? isColourPath(pathname)
+}
+
+// True while a request takes the scene away from `pathname`'s page.
+export const leavesPage = (
+  requested: boolean | null,
+  pathname: string
+) =>
+  requested !== null && requested !== isColourPath(pathname)
