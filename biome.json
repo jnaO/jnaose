@@ -5,6 +5,7 @@
     "includes": [
       "**",
       "!public",
+      "!prototypes",
       "!next-env.d.ts",
       "!tsconfig.json",
       "!**/*.md"
