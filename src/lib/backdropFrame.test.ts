@@ -18,11 +18,10 @@ beforeEach(async () => {
 
 const frame = (time: number): BackdropFrame => ({
   art: {} as HTMLCanvasElement,
-  dots: [],
-  spacing: 4,
+  time,
+  fade: 0,
   w: 100,
-  h: 50,
-  time
+  h: 50
 })
 
 describe('backdropFrame', () => {

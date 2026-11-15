@@ -7,9 +7,8 @@ import { useEffect, useRef, useState } from 'react'
 
 import bg from '@/assets/images/bg.jpg'
 
-import { ROTATE_KEEP } from '@/constants'
+import { ROTATE_KEEP, SCROLLER_ID } from '@/constants'
 import { useFinaleBlur } from '@/hooks/useFinaleBlur'
-import { publish } from '@/lib/backdropFrame'
 import {
   requestColour,
   useSceneColour
@@ -17,21 +16,19 @@ import {
 
 import styles from './backdrop.module.scss'
 import {
+  type BackdropPrint,
+  createBackdropPrint
+} from './backdropPrint'
+import {
   type Art,
-  buildDots,
-  clamp01,
-  type Dot,
-  drawFrame,
   FADE,
   LANDSCAPE,
-  LEAVE_SPEED,
   loadImage,
   PORTRAIT,
   paintArt,
   pickArt,
-  RESERVE_REM,
-  TOTAL_MS
-} from './halftone'
+  RESERVE_REM
+} from './print'
 
 // CSS variables for `.still`, which draws the settled colour photo
 // the way paintArt does, before the canvas can.
@@ -77,9 +74,10 @@ function Backdrop() {
   const pathname = usePathname()
   const colour = useSceneColour()
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const print = useRef<BackdropPrint | null>(null)
   const shown = useRef<boolean | null>(null)
-  // False until the canvas has drawn once; a page that loads in colour
-  // shows `.still` until then.
+  // False until the canvas holds a print; the clean photo layers show
+  // until then, and for good without WebGL2.
   const [painted, setPainted] = useState(false)
   const w = useViewportWidth()
   const blurring = useFinaleBlur()
@@ -89,66 +87,54 @@ function Backdrop() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx || w === null) return
+    if (!canvas) return
+    let cancelled = false
+    const current = createBackdropPrint(canvas, setPainted)
+    print.current = current
+    loadImage(bg.src).then((img) => {
+      if (!cancelled) current.setMono(img)
+    })
+    const request = () => current.request()
+    const scroller = document.getElementById(SCROLLER_ID)
+    window.addEventListener('resize', request)
+    scroller?.addEventListener('scroll', request, {
+      passive: true
+    })
+    return () => {
+      cancelled = true
+      window.removeEventListener('resize', request)
+      scroller?.removeEventListener('scroll', request)
+      current.dispose()
+      print.current = null
+      setPainted(false)
+    }
+  }, [])
 
-    let frame = 0
+  useEffect(() => {
+    if (w === null) return
     let cancelled = false
     const h = window.innerHeight
     const dpr = window.devicePixelRatio || 1
     const art = pickArt(w, h)
-    const animate = shown.current !== null
-    const wasShown = shown.current
-    shown.current = colour
-
     loadImage(art.image.src).then((img) => {
       if (cancelled) return
-      canvas.width = w * dpr
-      canvas.height = h * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const artCanvas = paintArt(img, art, w, h, dpr)
-
-      const frameOf = (
-        dots: Dot[],
-        spacing: number,
-        time: number
-      ) => ({ art: artCanvas, dots, spacing, w, h, time })
-
-      const settle = () => {
-        ctx.clearRect(0, 0, w, h)
-        if (colour) ctx.drawImage(artCanvas, 0, 0, w, h)
-        publish(frameOf([], 0, colour ? TOTAL_MS : 0))
-        setPainted(true)
-      }
-      if (!animate || wasShown === colour) {
-        settle()
-        return
-      }
-
-      const { dots, spacing } = buildDots(artCanvas, w, h)
-      const duration = colour
-        ? TOTAL_MS
-        : TOTAL_MS / LEAVE_SPEED
-      const t0 = performance.now()
-      const tick = (now: number) => {
-        const p = clamp01((now - t0) / duration)
-        if (p >= 1) {
-          settle()
-          return
-        }
-        const time = (colour ? p : 1 - p) * TOTAL_MS
-        drawFrame(ctx, artCanvas, dots, spacing, w, h, time)
-        publish(frameOf(dots, spacing, time))
-        frame = requestAnimationFrame(tick)
-      }
-      frame = requestAnimationFrame(tick)
+      print.current?.setArt(
+        paintArt(img, art, w, h, dpr),
+        w,
+        h
+      )
     })
-
     return () => {
       cancelled = true
-      cancelAnimationFrame(frame)
     }
-  }, [colour, w])
+  }, [w])
+
+  useEffect(() => {
+    const animate =
+      shown.current !== null && shown.current !== colour
+    shown.current = colour
+    print.current?.reveal(colour, animate)
+  }, [colour])
 
   return (
     <div
@@ -162,7 +148,7 @@ function Backdrop() {
       {colour && !painted && (
         <div className={styles.still} style={STILL_VARS} />
       )}
-      <canvas ref={canvasRef} className={styles.colour} />
+      <canvas ref={canvasRef} className={styles.print} />
       {blurring && <div className={styles.blur} />}
     </div>
   )

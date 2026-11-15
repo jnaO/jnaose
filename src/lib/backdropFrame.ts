@@ -1,17 +1,15 @@
-import type { Dot } from '@/components/Backdrop/halftone'
-
-// The Backdrop's halftone state, published every animation frame and
-// at settle. `time` is the page's reveal time (0 = mono, TOTAL_MS =
-// full colour); `w`/`h` are the viewport snapshot `art` was built at;
-// `dots` may be empty when settled. A plain store: it changes every
-// frame, so it never goes through React state.
+// The Backdrop's print state, published on every Backdrop draw.
+// `time` is the page's reveal clock (0 = home's photo, TOTAL_MS = the
+// colour photo); `fade` runs 0 (printed) → 1 (clean photo); `art` is
+// the colour photo as uploaded, painted at the w×h viewport snapshot.
+// A plain store: it changes every frame, so it never goes through
+// React state.
 export interface BackdropFrame {
   art: HTMLCanvasElement
-  dots: Dot[]
-  spacing: number
+  time: number
+  fade: number
   w: number
   h: number
-  time: number
 }
 
 type Listener = (frame: BackdropFrame) => void
