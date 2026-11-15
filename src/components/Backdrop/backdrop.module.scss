@@ -49,7 +49,7 @@ $blur-max: 24px;
   }
 }
 
-.colour {
+.print {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -61,7 +61,7 @@ $blur-max: 24px;
 // blurred edges stay opaque at every blur value and viewport size.
 // Backdrop mounts it only while --finale-blur is above 0: on iOS
 // WebKit a backdrop-filter layer does not repaint when the canvas
-// under it redraws, so the halftone transition freezes on screen.
+// under it redraws, so the print freezes on screen.
 .blur {
   position: absolute;
   inset: 0;
