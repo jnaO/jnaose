@@ -49,6 +49,17 @@ $blur-max: 24px;
   }
 }
 
+// Blank paper under the canvas until its first print; without
+// scripting the clean photo layers show instead.
+.paper {
+  position: absolute;
+  inset: 0;
+
+  @media (scripting: none) {
+    display: none;
+  }
+}
+
 .print {
   position: absolute;
   inset: 0;

@@ -3,8 +3,12 @@ import { publish } from '@/lib/backdropFrame'
 
 import {
   FADE_END_SEGMENT,
+  loadPress,
+  PRINT_IN,
   restScrollTop,
   revealTime,
+  sceneFade,
+  sceneInMs,
   scrollFade,
   TOTAL_MS
 } from './print'
@@ -14,8 +18,8 @@ export interface BackdropPrint {
   setMono(img: HTMLImageElement): void
   // `art` from paintArt at the w×h viewport snapshot.
   setArt(art: HTMLCanvasElement, w: number, h: number): void
-  // Runs the clock to the colour's end; jumps there when `animate` is
-  // false or there is no printer.
+  // Runs the fade to 0 (sceneFade), then the clock to the colour's
+  // end; jumps there when `animate` is false or there is no printer.
   reveal(colour: boolean, animate: boolean): void
   // A redraw on the next frame (resize, scroll); skipped when the
   // time, fade, viewport and dpr all match the last draw.
@@ -46,12 +50,19 @@ function readFade() {
   return scrollFade(scroller.scrollTop, end)
 }
 
+export interface BackdropPrintEvents {
+  // Whether the canvas holds a print.
+  onPainted(painted: boolean): void
+  // Once, when the paper cover is to go: at the first print, at once
+  // without a printer, on a lost context or after PRINT_IN.coverMs.
+  onUncover(): void
+}
+
 // Drives the Backdrop canvas's printer from one reveal clock and
-// publishes every draw to backdropFrame. `onPainted` reports whether
-// the canvas holds a print.
+// publishes every draw to backdropFrame.
 export function createBackdropPrint(
   canvas: HTMLCanvasElement,
-  onPainted: (painted: boolean) => void
+  { onPainted, onUncover }: BackdropPrintEvents
 ): BackdropPrint {
   let art: {
     canvas: HTMLCanvasElement
@@ -59,17 +70,52 @@ export function createBackdropPrint(
     h: number
   } | null = null
   let time = 0
+  // A scene change's print-in, until sceneFade lets go.
+  let scene: { from: number; t0: number } | null = null
+  let press = 0
+  let covered = true
+  let coverTimer = 0
   let last = ''
   let tickFrame = 0
+  let pressFrame = 0
   let requestFrame = 0
+
+  const shownFade = () => {
+    const real = readFade()
+    if (!scene) return real
+    const fade = sceneFade(
+      scene.from,
+      performance.now() - scene.t0,
+      real
+    )
+    if (fade === null) scene = null
+    return fade ?? real
+  }
+
+  const uncover = () => {
+    if (!covered) return
+    covered = false
+    window.clearTimeout(coverTimer)
+    onUncover()
+  }
+  const pressIn = () => {
+    const t0 = performance.now()
+    const tick = (now: number) => {
+      press = loadPress(now - t0)
+      draw()
+      if (press < 1)
+        pressFrame = requestAnimationFrame(tick)
+    }
+    pressFrame = requestAnimationFrame(tick)
+  }
 
   const draw = () => {
     if (!art) return
     const W = window.innerWidth
     const H = window.innerHeight
     const dpr = window.devicePixelRatio || 1
-    const fade = readFade()
-    const key = [time, fade, W, H, dpr].join()
+    const fade = shownFade()
+    const key = [time, fade, press, W, H, dpr].join()
     if (key === last) return
     last = key
     if (printer) {
@@ -81,9 +127,15 @@ export function createBackdropPrint(
       }
       const drawn = printer.draw(
         { W, H, origin: [0, 0], dpr },
-        { time, fade }
+        { time, fade, press }
       )
-      if (drawn) onPainted(true)
+      if (drawn) {
+        onPainted(true)
+        if (covered) {
+          uncover()
+          pressIn()
+        }
+      }
     }
     publish({
       art: art.canvas,
@@ -99,9 +151,18 @@ export function createBackdropPrint(
   }
 
   const printer = createPrinter(canvas, {
-    onLost: () => onPainted(false),
+    onLost: () => {
+      onPainted(false)
+      uncover()
+    },
     onRestore: redraw
   })
+  if (printer)
+    coverTimer = window.setTimeout(() => {
+      press = 1
+      uncover()
+    }, PRINT_IN.coverMs)
+  else uncover()
 
   return {
     setMono(img) {
@@ -117,16 +178,20 @@ export function createBackdropPrint(
       cancelAnimationFrame(tickFrame)
       const target = colour ? TOTAL_MS : 0
       if (!animate || !printer) {
+        scene = null
         time = target
         draw()
         return
       }
       const from = time
       const t0 = performance.now()
+      const fade = shownFade()
+      const wait = sceneInMs(fade)
+      scene = { from: fade, t0 }
       const tick = (now: number) => {
-        time = revealTime(from, colour, now - t0)
+        time = revealTime(from, colour, now - t0 - wait)
         draw()
-        if (time !== target)
+        if (time !== target || now - t0 < wait)
           tickFrame = requestAnimationFrame(tick)
       }
       tickFrame = requestAnimationFrame(tick)
@@ -136,7 +201,9 @@ export function createBackdropPrint(
       requestFrame = requestAnimationFrame(draw)
     },
     dispose() {
+      window.clearTimeout(coverTimer)
       cancelAnimationFrame(tickFrame)
+      cancelAnimationFrame(pressFrame)
       cancelAnimationFrame(requestFrame)
       printer?.dispose()
     }

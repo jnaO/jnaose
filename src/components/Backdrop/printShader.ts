@@ -1,7 +1,8 @@
 // GLSL ES 3.00, reduced from the fragment shader in
 // prototypes/print-raster/index.html to the CMYK print, the reveal
-// without merge and the dissolve scroll fade. Function names match
-// the prototype's. Positions are viewport CSS px, y down.
+// without merge, the dissolve scroll fade and the dissolve from
+// blank paper. Function names match the prototype's. Positions are
+// viewport CSS px, y down.
 
 export const VERTEX_SHADER = `#version 300 es
 in vec2 a;
@@ -25,6 +26,8 @@ uniform float uRough, uRoughScale, uGrain, uMottle, uMisreg;
 uniform float uTime, uSweep, uPrint;
 // 0 printed .. 1 clean photo.
 uniform float uFade;
+// 0 blank paper (uPaper) .. 1 printed.
+uniform float uPress;
 
 const float PI = 3.14159265;
 
@@ -113,5 +116,6 @@ void main() {
   col = mix(col, uInk, kk);
 
   col = mix(col, clean, max(plate(p, radians(uAngle) + .3, uFade * 1.05), step(1., uFade)));
+  col = mix(uPaper, col, max(plate(p, radians(uAngle) + .3, uPress * 1.05), step(1., uPress)));
   o = vec4(col, 1.);
 }`

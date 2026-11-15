@@ -24,6 +24,8 @@ export interface PrintState {
   time: number
   // 0 printed → 1 clean photo.
   fade: number
+  // 0 blank paper → 1 printed; 1 when left out.
+  press?: number
 }
 
 export interface Printer {
@@ -246,7 +248,7 @@ export function createPrinter(
       photo = source
       if (!lost) uploadPhoto()
     },
-    draw({ W, H, origin, dpr }, { time, fade }) {
+    draw({ W, H, origin, dpr }, { time, fade, press = 1 }) {
       if (lost || !built || !mono || !photo) return false
       if (!monoTexture || !photoTexture) return false
       const { u } = built
@@ -257,6 +259,7 @@ export function createPrinter(
         dpr,
         time,
         fade,
+        press,
         canvas.width,
         canvas.height
       ].join()
@@ -288,6 +291,7 @@ export function createPrinter(
       gl.uniform1f(u.uPhotoLod, lodBias(photo.width / W))
       gl.uniform1f(u.uTime, time)
       gl.uniform1f(u.uFade, fade)
+      gl.uniform1f(u.uPress, press)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
       return true
     },

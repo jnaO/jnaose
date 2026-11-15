@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { usePathname } from 'next/navigation'
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { preload } from 'react-dom'
 
 import bg from '@/assets/images/bg.jpg'
 
@@ -25,6 +26,7 @@ import {
   LANDSCAPE,
   loadImage,
   PORTRAIT,
+  PRINT,
   paintArt,
   pickArt,
   RESERVE_REM
@@ -70,7 +72,26 @@ function useViewportWidth() {
   return width
 }
 
+// The images the first print waits for; `media` follows pickArt
+// except at exactly square.
+function preloadPrint() {
+  preload(bg.src, { as: 'image', fetchPriority: 'high' })
+  preload(LANDSCAPE.image.src, {
+    as: 'image',
+    fetchPriority: 'high',
+    media: '(orientation: landscape)'
+  })
+  preload(PORTRAIT.image.src, {
+    as: 'image',
+    fetchPriority: 'high',
+    media: '(orientation: portrait)'
+  })
+}
+
+const PAPER_STYLE = { backgroundColor: PRINT.paper }
+
 function Backdrop() {
+  preloadPrint()
   const pathname = usePathname()
   const colour = useSceneColour()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -79,6 +100,8 @@ function Backdrop() {
   // False until the canvas holds a print; the clean photo layers show
   // until then, and for good without WebGL2.
   const [painted, setPainted] = useState(false)
+  // True until the canvas first prints onto it (see BackdropPrintEvents).
+  const [paper, setPaper] = useState(true)
   const w = useViewportWidth()
   const blurring = useFinaleBlur()
 
@@ -89,7 +112,10 @@ function Backdrop() {
     const canvas = canvasRef.current
     if (!canvas) return
     let cancelled = false
-    const current = createBackdropPrint(canvas, setPainted)
+    const current = createBackdropPrint(canvas, {
+      onPainted: setPainted,
+      onUncover: () => setPaper(false)
+    })
     print.current = current
     loadImage(bg.src).then((img) => {
       if (!cancelled) current.setMono(img)
@@ -147,6 +173,9 @@ function Backdrop() {
       />
       {colour && !painted && (
         <div className={styles.still} style={STILL_VARS} />
+      )}
+      {paper && (
+        <div className={styles.paper} style={PAPER_STYLE} />
       )}
       <canvas ref={canvasRef} className={styles.print} />
       {blurring && <div className={styles.blur} />}
