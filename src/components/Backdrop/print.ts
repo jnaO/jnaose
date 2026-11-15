@@ -51,6 +51,46 @@ export const mirror = (time: number) => TOTAL_MS - time
 export const lodBias = (texelsPerCssPx: number) =>
   PRINT.soft + Math.log2(texelsPerCssPx)
 
+// Print-in timings, in ms.
+export const PRINT_IN = {
+  // Scene change: the fade runs from 1 (clean photo) to 0 in this
+  // long before the reveal starts; from a lower fade, in its share.
+  sceneMs: 300,
+  // First load: the print dissolves onto blank paper in this long.
+  loadMs: 600,
+  // First load: the paper cover gives way to the clean photo layers
+  // if the canvas has not printed by then.
+  coverMs: 4000
+} as const
+
+// A scroll fade at or below this counts as the top's.
+export const SETTLED_FADE = 1e-3
+
+// How long a scene change's print-in from fade `from` runs.
+export const sceneInMs = (from: number) =>
+  clamp01(from) * PRINT_IN.sceneMs
+
+// The fade shown `elapsed` ms into a scene change's print-in from
+// `from`: the scroll fade `real` under a ceiling that falls to 0 over
+// sceneInMs(from) and stays there. Null once the ceiling is 0 and
+// `real` has settled, after which `real` shows on its own.
+export function sceneFade(
+  from: number,
+  elapsed: number,
+  real: number
+) {
+  const ms = sceneInMs(from)
+  const cap =
+    ms > 0 ? from * (1 - clamp01(elapsed / ms)) : 0
+  if (cap === 0 && real <= SETTLED_FADE) return null
+  return Math.min(cap, real)
+}
+
+// First load: 0 (blank paper) → 1 (printed), `elapsed` ms after the
+// canvas first printed.
+export const loadPress = (elapsed: number) =>
+  clamp01(elapsed / PRINT_IN.loadMs)
+
 // The scroll fade is complete at this segment's snap rest, numbered
 // as the Ruler numbers segments (from 1).
 export const FADE_END_SEGMENT = 1

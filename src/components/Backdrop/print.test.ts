@@ -5,13 +5,18 @@ import {
   hexToRgb,
   LANDSCAPE,
   LEAVE_SPEED,
+  loadPress,
   lodBias,
   mirror,
   PORTRAIT,
   PRINT,
+  PRINT_IN,
   pickArt,
   restScrollTop,
   revealTime,
+  SETTLED_FADE,
+  sceneFade,
+  sceneInMs,
   scrollFade,
   TOTAL_MS
 } from './print'
@@ -146,5 +151,69 @@ describe('scrollFade', () => {
 
   it('is the clean photo when the end is at the top', () => {
     expect(scrollFade(0, 0)).toBe(1)
+  })
+})
+
+describe('sceneInMs', () => {
+  it('takes PRINT_IN.sceneMs from the clean photo', () => {
+    expect(sceneInMs(1)).toBe(PRINT_IN.sceneMs)
+  })
+
+  it('takes a share of it from part-way', () => {
+    expect(sceneInMs(0.5)).toBe(PRINT_IN.sceneMs / 2)
+  })
+
+  it('takes nothing from the print', () => {
+    expect(sceneInMs(0)).toBe(0)
+  })
+})
+
+describe('sceneFade', () => {
+  const ms = PRINT_IN.sceneMs
+
+  it('starts at the fade it set off from', () => {
+    expect(sceneFade(1, 0, 1)).toBe(1)
+  })
+
+  it('runs the fade down to 0 over sceneInMs', () => {
+    expect(sceneFade(1, ms / 4, 1)).toBeCloseTo(0.75)
+    expect(sceneFade(0.5, ms / 4, 1)).toBeCloseTo(0.25)
+    expect(sceneFade(1, ms, 1)).toBe(0)
+  })
+
+  it('shows the scroll fade when it is lower', () => {
+    expect(sceneFade(1, ms / 4, 0.4)).toBe(0.4)
+  })
+
+  it('holds 0 while the scroll fade is still above it', () => {
+    expect(sceneFade(1, ms * 3, 0.6)).toBe(0)
+    expect(sceneFade(0, 0, 0.2)).toBe(0)
+  })
+
+  it('lets go once the scroll fade settles at the top', () => {
+    expect(sceneFade(1, ms, 0)).toBeNull()
+    expect(sceneFade(1, ms, SETTLED_FADE)).toBeNull()
+    expect(sceneFade(0, 0, 0)).toBeNull()
+  })
+
+  it('holds a settled scroll fade until the run is over', () => {
+    expect(sceneFade(1, ms / 2, 0)).toBe(0)
+  })
+
+  it('holds before the first frame', () => {
+    expect(sceneFade(0.8, -5, 1)).toBe(0.8)
+  })
+})
+
+describe('loadPress', () => {
+  it('is blank paper at the first print', () => {
+    expect(loadPress(0)).toBe(0)
+    expect(loadPress(-5)).toBe(0)
+  })
+
+  it('prints in over PRINT_IN.loadMs', () => {
+    expect(loadPress(PRINT_IN.loadMs / 2)).toBeCloseTo(0.5)
+    expect(loadPress(PRINT_IN.loadMs)).toBe(1)
+    expect(loadPress(PRINT_IN.loadMs * 2)).toBe(1)
   })
 })
