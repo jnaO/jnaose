@@ -31,7 +31,7 @@ src/
     useAnimatedLogo.ts  THE stroke-pulse animation for logo SVGs
     useFinaleBlur.ts    true while <html>'s --finale-blur (footer finale) is above 0
   components/
-    Backdrop/           fixed clean photo layers (.mono / .still) under a WebGL2 CMYK print of the current page's photo; print.ts = THE print module (PRINT settings, TOTAL_MS/LEAVE_SPEED, revealTime, mirror, lodBias, scroll fade helpers, Art/pickArt/paintArt, coverRect); printShader.ts = the GLSL; printer.ts = createPrinter (WebGL2 renderer, null without WebGL2); backdropPrint.ts = the Backdrop's clock, redraw/skip rule and publish
+    Backdrop/           fixed clean photo layers (.mono / .still) and a paper cover (.paper, until the first print) under a WebGL2 CMYK print of the current page's photo; print.ts = THE print module (PRINT settings, TOTAL_MS/LEAVE_SPEED, revealTime, mirror, PRINT_IN + sceneFade/loadPress print-in timing, lodBias, scroll fade helpers, Art/pickArt/paintArt, coverRect); printShader.ts = the GLSL; printer.ts = createPrinter (WebGL2 renderer, null without WebGL2); backdropPrint.ts = the Backdrop's clock, scene/load print-ins, paper-cover rule, redraw/skip rule and publish
     TopCover/           invisible fixed black top strip (opacity 0, --top-cover-height tall) that iOS Safari samples to keep its status bar black
     SiteMenu/           fixed top-right lettered spine (ink layer): outlined home/work words read bottom→top, wipe carriers for MenuWindow; words.ts = the words' SvgArt, spine.ts = rotation + wordMatrix (shared with MenuWindow)
     HistoryScenes/      runs browser back/forward through startScene
