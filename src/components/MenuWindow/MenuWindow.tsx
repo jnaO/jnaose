@@ -5,9 +5,11 @@ import { useEffect, useRef } from 'react'
 
 import bg from '@/assets/images/bg.jpg'
 import {
-  drawFrame,
-  loadImage
-} from '@/components/Backdrop/halftone'
+  coverRect,
+  loadImage,
+  mirror
+} from '@/components/Backdrop/print'
+import { createPrinter } from '@/components/Backdrop/printer'
 import { wordMatrix } from '@/components/SiteMenu/spine'
 import {
   WORDS,
@@ -15,14 +17,13 @@ import {
 } from '@/components/SiteMenu/words'
 import { UI_CHROME } from '@/constants'
 import { type Affine, multiply } from '@/lib/affine'
-import { get, subscribe } from '@/lib/backdropFrame'
+import {
+  type BackdropFrame,
+  get,
+  subscribe
+} from '@/lib/backdropFrame'
 import type { SvgArt } from '@/lib/svgArt'
 
-import {
-  colourLayer,
-  coverRect,
-  toSnapshot
-} from './geometry'
 import styles from './menuWindow.module.scss'
 
 // Events after which a carrier may have moved.
@@ -84,6 +85,33 @@ function fillMask(
     })
 }
 
+// The clean other-page photo in viewport coordinates: mono at `.mono`'s
+// placement, and on home (time 0) the colour art over it.
+function paintClean(
+  ctx: CanvasRenderingContext2D,
+  mono: HTMLImageElement,
+  frame: BackdropFrame,
+  W: number,
+  H: number
+) {
+  const cover = coverRect(
+    mono.naturalWidth,
+    mono.naturalHeight,
+    W,
+    H
+  )
+  ctx.drawImage(
+    mono,
+    cover.x,
+    cover.y,
+    cover.width,
+    cover.height
+  )
+  if (frame.time !== 0) return
+  ctx.globalCompositeOperation = 'source-atop'
+  ctx.drawImage(frame.art, 0, 0, W, H)
+}
+
 // True while a CSS animation or transition runs under a carrier's nav.
 function carriersMoving() {
   const navs = new Set<Element>()
@@ -105,7 +133,8 @@ function carriersMoving() {
 
 // The window layer of the menus: the other page's photo through every
 // active mark (spine word fill), at its full-viewport
-// size and position, with the Backdrop's halftone run in mirror.
+// size and position, printed on the Backdrop's clock run in mirror and
+// faded with the Backdrop's scroll fade.
 function MenuWindow() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -114,10 +143,9 @@ function MenuWindow() {
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
     const offscreen = document.createElement('canvas')
-    const octx = offscreen.getContext('2d')
-    if (!octx) return
 
     let mono: HTMLImageElement | null = null
+    let photo: HTMLCanvasElement | null = null
     let cancelled = false
     let raf = 0
 
@@ -149,49 +177,27 @@ function MenuWindow() {
       ctx.setTransform(...base)
       fillMask(ctx, base)
 
+      if (frame.art !== photo) {
+        photo = frame.art
+        printer?.setPhoto(photo)
+      }
+      if (
+        offscreen.width !== cw ||
+        offscreen.height !== ch
+      ) {
+        offscreen.width = cw
+        offscreen.height = ch
+      }
+      const printed = printer?.draw(
+        { W, H, origin: [rail.left, rail.top], dpr },
+        { time: mirror(frame.time), fade: frame.fade }
+      )
       ctx.globalCompositeOperation = 'source-in'
-      const cover = coverRect(
-        mono.naturalWidth,
-        mono.naturalHeight,
-        W,
-        H
-      )
-      ctx.drawImage(
-        mono,
-        cover.x,
-        cover.y,
-        cover.width,
-        cover.height
-      )
-
-      const layer = colourLayer(frame.time)
-      ctx.globalCompositeOperation = 'source-atop'
-      if (layer.kind === 'full') {
-        ctx.drawImage(frame.art, 0, 0, W, H)
-      } else if (layer.kind === 'frame') {
-        if (
-          offscreen.width !== cw ||
-          offscreen.height !== ch
-        ) {
-          offscreen.width = cw
-          offscreen.height = ch
-        }
-        const { art, dots, spacing, w, h } = frame
-        octx.setTransform(
-          ...multiply(base, [W / w, 0, 0, H / h, 0, 0])
-        )
-        drawFrame(
-          octx,
-          art,
-          dots,
-          spacing,
-          w,
-          h,
-          layer.time,
-          toSnapshot(rail, W, H, w, h)
-        )
+      if (printed) {
         ctx.setTransform(1, 0, 0, 1, 0, 0)
         ctx.drawImage(offscreen, 0, 0)
+      } else {
+        paintClean(ctx, mono, frame, W, H)
       }
       ctx.globalCompositeOperation = 'source-over'
     }
@@ -205,9 +211,15 @@ function MenuWindow() {
       if (!raf && !cancelled)
         raf = requestAnimationFrame(tick)
     }
+    const printer = createPrinter(offscreen, {
+      preserveDrawingBuffer: true,
+      onRestore: request
+    })
 
     loadImage(bg.src).then((img) => {
+      if (cancelled) return
       mono = img
+      printer?.setMono(img)
       request()
     })
     // Inside the Backdrop's own frame, so both settle together.
@@ -225,6 +237,7 @@ function MenuWindow() {
     return () => {
       cancelled = true
       cancelAnimationFrame(raf)
+      printer?.dispose()
       unsubscribe()
       for (const type of WAKE_EVENTS)
         document.removeEventListener(type, request)
