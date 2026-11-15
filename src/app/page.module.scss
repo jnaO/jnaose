@@ -22,7 +22,7 @@
   align-items: flex-end;
   bottom: 0;
   padding: max(env(safe-area-inset-top), var(--logo-block))
-    max(env(safe-area-inset-right), 1rem)
+    max(env(safe-area-inset-right), var(--rail))
     max(env(safe-area-inset-bottom), 1rem)
     max(env(safe-area-inset-left), 1rem);
   width: 100%;
@@ -35,9 +35,12 @@
   padding-top: calc(100vh - 260px);
 }
 
+// Positioned and after the Ruler in <main>, so it paints over the
+// Ruler's nav; nothing in it takes pointer input.
 .footer {
   position: relative;
   height: 200%;
+  pointer-events: none;
 }
 
 .title {
@@ -112,20 +115,4 @@
   &:hover {
     fill: var(--highlight-color);
   }
-}
-
-.navItem {
-  @extend .link;
-  height: 2.75rem;
-  align-items: center;
-  padding: 0 0.5rem;
-  text-decoration: none;
-  &:focus,
-  &:hover {
-    background-color: transparent;
-  }
-}
-
-.navCurrent {
-  color: var(--highlight-color);
 }

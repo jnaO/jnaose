@@ -12,7 +12,7 @@ import classNames from 'classnames'
 import type React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { SCROLLER_ID } from '@/constants'
+import { LOGO_REST_ID, SCROLLER_ID } from '@/constants'
 
 import { createFinale, FINALE } from './finale'
 import styles from './jnaoLogo.module.scss'
@@ -224,6 +224,7 @@ function JnaoLogo({ alt = 'jnaO Logo' }: LogoProps) {
   return (
     <>
       <div
+        id={LOGO_REST_ID}
         className={classNames(
           styles.snap,
           styles.footerSnap

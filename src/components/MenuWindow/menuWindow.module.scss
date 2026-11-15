@@ -1,0 +1,11 @@
+// The rail, full height. z-index auto keeps it below TopCover; it
+// renders before <main> (layout.tsx) so both ink navs paint over it.
+.window {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--rail);
+  height: 100%;
+  pointer-events: none;
+}

@@ -9,9 +9,12 @@ import './globals.scss'
 import Backdrop from '@/components/Backdrop/Backdrop'
 import HistoryScenes from '@/components/HistoryScenes/HistoryScenes'
 import JnaoLogo from '@/components/JnaoLogo/JnaoLogo'
+import { LOGO_ART } from '@/components/Logo/art'
 import Logo from '@/components/Logo/Logo'
+import MenuWindow from '@/components/MenuWindow/MenuWindow'
 import RotateNotice from '@/components/RotateNotice/RotateNotice'
 import SiteMenu from '@/components/SiteMenu/SiteMenu'
+import { WORDS } from '@/components/SiteMenu/words'
 import TopCover from '@/components/TopCover/TopCover'
 import {
   SCROLLER_ID,
@@ -20,6 +23,7 @@ import {
   SITE_URL,
   UI_CHROME
 } from '@/constants'
+import { aspect } from '@/lib/svgArt'
 
 import icons from './icons'
 import styles from './page.module.scss'
@@ -45,13 +49,21 @@ export const viewport: Viewport = {
   initialScale: 1
 }
 
+// Art ratios for the layout tokens in globals.scss. They sit on
+// <html> because :root's tokens resolve against <html>'s values.
+const ART_RATIOS = {
+  '--logo-ratio': aspect(LOGO_ART),
+  '--ratio-home': 1 / aspect(WORDS.home),
+  '--ratio-work': 1 / aspect(WORDS.work)
+} as React.CSSProperties
+
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" style={ART_RATIOS}>
       <body
         className={classNames(
           rajdhani.className,
@@ -60,6 +72,7 @@ export default function RootLayout({
       >
         <Backdrop />
         <TopCover />
+        <MenuWindow />
         <main id={SCROLLER_ID} className={styles.main}>
           <div className={styles.padder} />
           <h1

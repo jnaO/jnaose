@@ -9,12 +9,36 @@
   // stage offset).
   --top-cover-height: 5px;
   // Header logo width (page.module.scss .title) and the
-  // block it covers at the top of every segment; 682/998 is
-  // Logo's viewBox ratio, 1rem the .title sticky top.
+  // block it covers at the top of every segment; 1rem is the
+  // .title sticky top. --logo-ratio (Logo/art.ts) and the
+  // other art ratios are set inline on <html> by layout.tsx.
   --logo-width: min(200px, 28vh);
   --logo-block: calc(
-    1.5rem + var(--logo-width) * 682 / 998
+    1.5rem + var(--logo-width) * var(--logo-ratio)
   );
+  // SiteMenu spine. --spine-band is the rendered height of a
+  // word's viewBox (the band's width once rotated); a word's
+  // length is the band times its --ratio-* (W / H).
+  --spine-band: clamp(22px, 4.4vh, 33px);
+  --spine-gap: 12px;
+  --spine-top: max(env(safe-area-inset-top), 1rem);
+  --spine-home: calc(var(--spine-band) * var(--ratio-home));
+  --spine-work: calc(var(--spine-band) * var(--ratio-work));
+  --spine-bottom: calc(
+    var(--spine-top) + var(--spine-home) + var(--spine-gap)
+      + var(--spine-work)
+  );
+  // Right column kept clear of page text: the spine, the
+  // Ruler and the MenuWindow canvas live in it.
+  --rail: 6.25rem;
+  // Ruler length from the first to the last long tick; the row
+  // pitch divides it by the item count (min 44px, the row height).
+  --ruler-span: 176px;
+  @media (min-width: 48rem) {
+    --spine-band: clamp(27px, 5.75vh, 46px);
+    --rail: 23.75rem;
+    --ruler-span: clamp(176px, 27.2vh, 240px);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
