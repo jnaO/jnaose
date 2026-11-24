@@ -104,7 +104,9 @@ $ease-in: cubic-bezier(0.4, 0, 1, 1);
   transform-origin: left;
   scale: 0 1;
   pointer-events: none;
-  transition: translate 0.1s ease-out, scale 0.3s $spring;
+  transition:
+    translate 0.1s ease-out,
+    scale 0.3s $spring;
   animation: extend var(--needle-in) $spring backwards;
   animation-delay: var(--needle-in-delay);
 }
@@ -167,7 +169,9 @@ $ease-in: cubic-bezier(0.4, 0, 1, 1);
     max-width: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-width 0.45s $ease-out, opacity 0.3s;
+    transition:
+      max-width 0.45s $ease-out,
+      opacity 0.3s;
   }
 }
 
